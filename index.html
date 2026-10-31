@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1424"><meta name="description" content="Control de inventario y reposición de materiales de Vialseg.">
+  <title>Vialseg · Inventario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css"><script src="./config.js"></script><script defer src="./app.js"></script>
+</head>
+<body>
+  <section id="auth-screen" class="auth-screen">
+    <div class="auth-panel">
+      <a class="brand brand-auth" href="#" aria-label="Vialseg Inventario"><span class="brand-mark">V</span><span><strong>VIALSEG</strong><small>GESTIÓN DE INVENTARIO</small></span></a>
+      <div class="auth-copy"><p class="eyebrow">CONTROL DE MATERIALES</p><h1>Todo el stock<br>en un solo lugar.</h1><p>Consultá existencias, seguí los movimientos y anticipá las reposiciones.</p></div>
+      <div id="auth-error" class="alert-error" hidden></div>
+      <form id="login-form" class="login-form">
+        <label for="login-email">Correo electrónico</label><input id="login-email" name="email" type="email" autocomplete="username" placeholder="nombre@vialseg.com" required>
+        <label for="login-password">Contraseña</label><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Ingresá tu contraseña" required>
+        <button class="button button-dark button-full" type="submit">Ingresar <span aria-hidden="true">↗</span></button>
+      </form>
+      <div id="auth-config-note" class="auth-note" hidden>La conexión a la base compartida todavía no está configurada. Podés explorar la versión de demostración.</div>
+      <button id="demo-login" class="button button-outline button-full" type="button">Explorar demostración</button>
+      <p class="auth-foot">Acceso para administración y depósito</p>
+    </div>
+    <div class="auth-visual">
+      <div class="auth-visual-top"><span class="live-dot"></span> VIALSEG · OPERACIONES</div>
+      <div class="auth-visual-content"><div class="visual-grid"></div><div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+        <div class="visual-tag tag-one"><span class="tag-dot lime"></span>Stock crítico <strong>3 insumos</strong></div>
+        <div class="visual-tag tag-two"><span class="tag-dot blue"></span>Reposición <strong>En seguimiento</strong></div>
+        <div class="visual-center"><span class="brand-mark large">V</span><div>Inventario<br><b>Vialseg</b></div></div>
+      </div>
+      <div class="auth-visual-bottom"><span>GESTIÓN DE ABASTECIMIENTO</span><span>01 / CONTROL DE STOCK</span></div>
+    </div>
+  </section>
+
+  <div id="app-shell" class="app-shell" hidden>
+    <aside class="sidebar" id="sidebar">
+      <a class="brand brand-side" href="#overview" aria-label="Vialseg Inventario"><span class="brand-mark">V</span><span><strong>VIALSEG</strong><small>INVENTARIO</small></span></a>
+      <div class="workspace-label">ESPACIO DE TRABAJO</div>
+      <nav class="side-nav" aria-label="Navegación principal">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon" data-icon="grid"></span><span>Resumen</span></button>
+        <button class="nav-item" data-view="items"><span class="nav-icon" data-icon="box"></span><span>Materiales</span><span class="nav-count" id="nav-items-count">0</span></button>
+        <button class="nav-item" data-view="movements"><span class="nav-icon" data-icon="arrows"></span><span>Movimientos</span></button>
+        <button class="nav-item" data-view="replenishment"><span class="nav-icon" data-icon="bell"></span><span>Reposición</span><span class="nav-alert" id="nav-replenishment-count">0</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-help"><span class="help-icon">?</span><div><strong>¿Necesitás ayuda?</strong><small>Guía rápida del inventario</small></div><span class="help-arrow">↗</span></div>
+        <button id="settings-button" class="side-footer-button"><span data-icon="settings"></span> Configuración</button>
+        <button id="logout-button" class="side-footer-button"><span data-icon="logout"></span> Cerrar sesión</button>
+        <div class="user-mini"><span class="avatar" id="user-avatar">AD</span><span class="user-copy"><strong id="user-name">Administración</strong><small id="user-role">Vialseg</small></span><span class="user-menu">•••</span></div>
+      </div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar">
+        <button id="mobile-menu" class="icon-button mobile-menu" aria-label="Abrir menú"><span data-icon="menu"></span></button>
+        <div class="breadcrumbs"><span>Vialseg</span><span class="crumb-separator">/</span><strong id="breadcrumb-current">Resumen</strong></div>
+        <div class="topbar-right"><span id="mode-chip" class="mode-chip"><span class="live-dot"></span><span>Conectado</span></span>
+          <button id="top-notifications" class="icon-button notification-button" aria-label="Ver alertas"><span data-icon="bell"></span><i id="notification-dot"></i></button>
+          <div class="top-user"><span class="avatar avatar-small" id="top-avatar">AD</span><span id="top-user-name">Administración</span></div>
+        </div>
+      </header>
+      <div class="page-wrap"><div id="page-heading" class="page-heading"></div><div id="notice-strip"></div><section id="main-content"></section>
+        <footer class="page-footer"><span>VIALSEG · CONTROL DE INVENTARIO</span><span id="footer-date"></span></footer>
+      </div>
+    </main>
+  </div>
+  <div id="modal-root"></div><div id="toast-root" class="toast-root" aria-live="polite"></div><input id="csv-file" type="file" accept=".csv,text/csv" hidden>
+</body></html>
