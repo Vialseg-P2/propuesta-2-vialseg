@@ -274,7 +274,12 @@
     $("#breadcrumb-current").textContent = VIEW_NAMES[state.view];
     $("#page-heading").innerHTML = '<div><h1 class="page-title">' + VIEW_NAMES[state.view] + '</h1><p class="page-subtitle">' + viewSubtitle(state.view) + '</p></div><div class="heading-actions">' + headingActions(state.view) + '</div>';
     $("#notice-strip").innerHTML = state.mode === "demo" ? '<div class="demo-banner"><span class="banner-icon">i</span><span><strong>Modo demostración.</strong> Estos datos son ficticios y se guardan únicamente en este navegador.</span><button data-action="open-settings">Ver cómo conectar la base</button></div>' : "";
-    $("#main-content").innerHTML = state.view === "overview" ? renderOverview() : state.view === "items" ? renderItems() : state.view === "movements" ? renderMovements() : state.view === "reports" ? renderReports() : renderReplenishment();
+    const mainContent = $("#main-content");
+    mainContent.innerHTML = state.view === "overview" ? renderOverview() : state.view === "items" ? renderItems() : state.view === "movements" ? renderMovements() : state.view === "reports" ? renderReports() : renderReplenishment();
+    mainContent.classList.remove("content-enter");
+    void mainContent.offsetWidth;
+    mainContent.classList.add("content-enter");
+    window.setTimeout(() => mainContent.classList.remove("content-enter"), 360);
     $("#footer-date").textContent = new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
     paintIdentity();
   }
@@ -815,18 +820,48 @@
     show(error);
   }
   function showLogin() {
-    hide($("#app-shell"));
-    show($("#auth-screen"));
+    const shell = $("#app-shell");
+    const auth = $("#auth-screen");
     $("#login-form").hidden = !configured();
     $("#auth-config-note").hidden = configured();
+    if (!shell.hidden) {
+      shell.classList.remove("app-enter");
+      shell.classList.add("app-exit");
+      window.setTimeout(() => {
+        hide(shell);
+        shell.classList.remove("app-exit");
+        show(auth);
+        auth.classList.add("auth-enter");
+        window.setTimeout(() => auth.classList.remove("auth-enter"), 360);
+      }, 180);
+      return;
+    }
+    show(auth);
+  }
+  function enterApplication() {
+    const auth = $("#auth-screen");
+    const shell = $("#app-shell");
+    const finish = () => {
+      hide(auth);
+      auth.classList.remove("auth-exit");
+      show(shell);
+      render();
+      shell.classList.remove("app-enter");
+      void shell.offsetWidth;
+      shell.classList.add("app-enter");
+      window.setTimeout(() => shell.classList.remove("app-enter"), 480);
+    };
+    if (auth.hidden) { finish(); return; }
+    auth.classList.remove("auth-enter");
+    auth.classList.add("auth-exit");
+    window.setTimeout(finish, 220);
   }
   async function enterDemo() {
     state.mode = "demo";
     state.session = null;
     state.user = { name: "Administración demo", email: "demo@vialseg.local" };
     loadDemoData();
-    hide($("#auth-screen")); show($("#app-shell"));
-    render();
+    enterApplication();
   }
   async function login(e) {
     e.preventDefault();
@@ -841,7 +876,7 @@
       const session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in || 3600) * 1000, user: data.user };
       putSession(session, $("#remember-device").checked); state.mode = "remote"; state.user = data.user;
       await loadRemoteData();
-      hide($("#auth-screen")); show($("#app-shell")); render();
+      enterApplication();
     } catch (error) { setAuthError(error.message || "No se pudo ingresar."); }
     finally { button.disabled = false; button.innerHTML = 'Ingresar <span aria-hidden="true">↗</span>'; }
   }
@@ -862,7 +897,7 @@
       state.user = user;
       state.mode = "remote";
       await loadRemoteData();
-      hide($("#auth-screen")); show($("#app-shell")); render();
+      enterApplication();
     } catch (_) { putSession(null); showLogin(); }
     finally { loading(); }
   }
