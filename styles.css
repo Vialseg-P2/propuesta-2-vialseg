@@ -277,3 +277,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .report-date-field select{height:38px;min-width:min(420px,70vw);padding:0 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font:inherit}
 @media(max-width:900px){.cost-chart-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.report-date-field select{width:100%;min-width:0}.cost-current{margin-left:0}}
+
+.material-picker{position:relative;width:100%}
+.material-picker input{width:100%}
+.material-suggestions{position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:90;max-height:250px;overflow-y:auto;background:#fff;border:1px solid #dfe5ee;border-radius:10px;box-shadow:0 12px 30px rgba(16,30,52,.16);padding:5px}
+.material-suggestions[hidden]{display:none}
+.material-suggestion{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border:0;border-radius:7px;padding:9px 10px;background:#fff;color:#263247;text-align:left;cursor:pointer}
+.material-suggestion:hover,.material-suggestion:focus{background:#f2f6f9;outline:none}
+.material-suggestion>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.material-suggestion strong{font-size:12px;color:#243248}
+.material-suggestion>span>span{font-size:12px;color:#66758a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.material-suggestion small{flex-shrink:0;font-size:10px;color:#8290a3}
+.material-suggestion-empty{padding:12px;color:#8290a3;font-size:12px}

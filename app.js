@@ -607,10 +607,11 @@
     const items = activeItems().slice().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
     if (!items.length) { toast("Primero agregá un material al catálogo.", "error"); return; }
     const selected = id ? itemById(id) : items[0];
-    const options = items.map((item) => '<option value="' + esc(item.id) + '"' + (selected && String(item.id) === String(selected.id) ? " selected" : "") + '>' + esc(item.sku + " · " + item.name + " (stock: " + quantity(item.stock) + ")") + '</option>').join("");
+    const options = items.map((item) => '<option value="' + esc(item.id) + '"' + (selected && String(item.id) === String(selected.id) ? " selected" : "") + '>' + esc(item.sku + " · " + item.name) + '</option>').join("");
+    const selectedLabel = selected ? selected.sku + " · " + selected.name : "";
     const typeOptions = [["ingreso","Ingreso de stock"],["consumo","Consumo / salida"],["ajuste","Ajuste por conteo físico"]].map((x) => '<option value="' + x[0] + '"' + (kind === x[0] ? " selected" : "") + '>' + x[1] + '</option>').join("");
     const body = '<form id="movement-form"><div class="form-grid">' +
-      field("Material", '<select id="m-item">' + options + '</select>') +
+      field("Material", '<div class="material-picker"><input id="m-item-search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="m-item-results" aria-expanded="false" value="' + esc(selectedLabel) + '" placeholder="Escribí nombre o código"><div id="m-item-results" class="material-suggestions" role="listbox" hidden></div><select id="m-item" hidden>' + options + '</select></div>') +
       field("Tipo de movimiento", '<select id="m-type">' + typeOptions + '</select>') +
       field('<span id="m-quantity-label">Cantidad</span>', '<input id="m-quantity" type="number" min="0" step="0.01" required placeholder="0">') +
       '<div class="field full" id="m-unit-cost-field" hidden><label for="m-unit-cost-ars">Precio pagado por unidad (ARS)</label><input id="m-unit-cost-ars" type="number" min="0.01" step="0.01" placeholder="0,00"><small id="m-blue-quote-note" class="field-hint">Se convertirá a USD con el dólar blue vendedor al registrar el ingreso.</small></div>' +
@@ -620,9 +621,33 @@
     openModal("Registrar movimiento", "El cambio de stock quedará asociado a una fecha y responsable.", body, modalFoot("Guardar movimiento", "movement-form"), false);
     updateMovementHelp();
   }
+  function renderMovementItemSuggestions(query) {
+    const results = $("#m-item-results");
+    const input = $("#m-item-search");
+    if (!results || !input) return;
+    const q = String(query || "").trim().toLocaleLowerCase("es");
+    const items = activeItems().slice().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
+    const matches = q ? items.filter((item) => (String(item.sku || "") + " " + String(item.name || "")).toLocaleLowerCase("es").includes(q)) : items;
+    results.innerHTML = matches.length ? matches.map((item) => '<button type="button" class="material-suggestion" role="option" data-movement-item-id="' + esc(item.id) + '"><span><strong>' + esc(item.sku) + '</strong><span>' + esc(item.name) + '</span></span><small>Stock: ' + esc(quantity(item.stock)) + ' ' + esc(item.unit) + '</small></button>').join("") : '<div class="material-suggestion-empty">No hay materiales que coincidan.</div>';
+    results.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
+  function hideMovementItemSuggestions() {
+    const results = $("#m-item-results"), input = $("#m-item-search");
+    if (results) results.hidden = true;
+    if (input) input.setAttribute("aria-expanded", "false");
+  }
+  function selectMovementItem(id) {
+    const item = itemById(id);
+    if (!item) return;
+    $("#m-item").value = item.id;
+    $("#m-item-search").value = item.sku + " · " + item.name;
+    hideMovementItemSuggestions();
+    updateMovementHelp();
+  }
   function updateMovementHelp() {
     const selected = itemById($("#m-item") && $("#m-item").value);
-    if (!selected) return;
+    if (!selected) { const help = $("#movement-help"); if (help) help.textContent = "Buscá y seleccioná un material para continuar."; const cost = $("#m-unit-cost-field"); if (cost) cost.hidden = true; const price = $("#m-unit-cost-ars"); if (price) price.required = false; const quantityInput = $("#m-quantity"); if (quantityInput) { quantityInput.max = ""; quantityInput.placeholder = "0"; } return; }
     const type = $("#m-type").value;
     $("#m-quantity-label").textContent = type === "ajuste" ? "Nuevo stock contado" : "Cantidad";
     $("#m-quantity").placeholder = type === "ajuste" ? quantity(selected.stock) : "0";
@@ -784,6 +809,7 @@
     const loading = showLoading("Registrando movimiento…");
     try {
       const itemId = $("#m-item").value;
+      if (!itemId) throw new Error("Buscá y seleccioná un material antes de guardar.");
       const type = $("#m-type").value;
       const amount = val("m-quantity");
       const note = val("m-note");
@@ -1014,6 +1040,14 @@
   }
 
   function onSearchInput(e) {
+    if (e.target.id === "m-item-search") {
+      const select = $("#m-item");
+      const selected = itemById(select && select.value);
+      const canonical = selected ? selected.sku + " · " + selected.name : "";
+      if (String(e.target.value).trim().toLocaleLowerCase("es") !== canonical.toLocaleLowerCase("es")) select.value = "";
+      updateMovementHelp();
+      renderMovementItemSuggestions(e.target.value);
+    }
     if (e.target.id === "item-search") {
       state.itemSearch = e.target.value;
       const region = $("#item-table-region");
@@ -1036,6 +1070,9 @@
   function csvInputClick() { $("#csv-file").value = ""; $("#csv-file").click(); }
 
   async function onClick(e) {
+    const materialChoice = e.target.closest("[data-movement-item-id]");
+    if (materialChoice) { selectMovementItem(materialChoice.dataset.movementItemId); return; }
+    if (!e.target.closest(".material-picker")) hideMovementItemSuggestions();
     const nav = e.target.closest("[data-view]");
     if (nav) { setView(nav.dataset.view); return; }
     const actionEl = e.target.closest("[data-action]");
@@ -1073,6 +1110,15 @@
 
   document.addEventListener("click", (e) => { onClick(e).catch((error) => toast(error.message || "Ocurrió un error.", "error")); });
   document.addEventListener("input", onSearchInput);
+  document.addEventListener("focusin", (e) => { if (e.target.id === "m-item-search") renderMovementItemSuggestions(e.target.value); });
+  document.addEventListener("keydown", (e) => {
+    if (e.target.id !== "m-item-search") return;
+    if (e.key === "Escape") { hideMovementItemSuggestions(); return; }
+    if (e.key === "Enter") {
+      const first = $("#m-item-results [data-movement-item-id]");
+      if (first && !$("#m-item-results").hidden) { e.preventDefault(); selectMovementItem(first.dataset.movementItemId); }
+    }
+  });
   document.addEventListener("change", (e) => {
     if (e.target.id === "item-category-filter") { state.itemCategory = e.target.value; render(); }
     if (e.target.id === "item-class-filter") { state.itemClass = e.target.value; render(); }
