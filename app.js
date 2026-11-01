@@ -26,7 +26,7 @@
     close: "m18 6-12 12M6 6l12 12"
   };
 
-  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "", priceHistoryItem: "", priceHistoryData: [] };
+  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCodeSearch: "", itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "", priceHistoryItem: "", priceHistoryData: [] };
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
   const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
@@ -378,7 +378,9 @@
   function filteredItems() {
     let list = activeItems();
     const q = state.itemSearch.toLowerCase().trim();
-    if (q) list = list.filter((i) => (i.name + " " + i.sku + " " + i.category + " " + i.supplier).toLowerCase().includes(q));
+    if (q) list = list.filter((i) => (i.name + " " + i.category + " " + i.supplier).toLowerCase().includes(q));
+    const codeQuery = state.itemCodeSearch.toLowerCase().trim();
+    if (codeQuery) list = list.filter((i) => String(i.sku || "").toLowerCase().includes(codeQuery));
     if (state.itemCategory !== "all") list = list.filter((i) => String(i.category || "General").toLowerCase() === state.itemCategory.toLowerCase());
     if (state.itemClass !== "all") {
       const abc = withAbc(activeItems());
@@ -388,12 +390,12 @@
     if (state.itemStatus === "low") list = list.filter((i) => stockStatus(i) === "low");
     if (state.itemStatus === "non") list = list.filter((i) => stockStatus(i) === "non");
     if (state.itemStatus === "ok") list = list.filter((i) => stockStatus(i) === "ok");
-    return list.sort((a, b) => a.name.localeCompare(b.name, "es"));
+    return list.sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
   }
   function renderItems() {
     const list = filteredItems();
     return '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Catálogo de materiales <span class="pill-count" id="item-result-count">' + list.length + '</span></h2><p class="panel-caption">El stock se modifica desde Movimientos para conservar el historial.</p></div></div>' +
-      '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="item-search" class="search-input" value="' + esc(state.itemSearch) + '" placeholder="Buscar por nombre, código o proveedor"></div>' +
+      '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="item-search" class="search-input" value="' + esc(state.itemSearch) + '" placeholder="Buscar por nombre o proveedor"></div><div class="search-wrap"><span class="search-icon">#</span><input id="item-code-search" class="search-input" value="' + esc(state.itemCodeSearch) + '" placeholder="Buscar por código"></div>' +
       '<select id="item-category-filter" class="filter-select" aria-label="Filtrar por categoría"><option value="all">Todas las categorías</option>' + Array.from(new Set(activeItems().map((item) => String(item.category || "General").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "es")).map((category) => '<option value="' + esc(category) + '"' + (state.itemCategory.toLowerCase() === category.toLowerCase() ? " selected" : "") + '>' + esc(category) + '</option>').join("") + '</select>' +
       '<select id="item-class-filter" class="filter-select" aria-label="Filtrar por clase ABC"><option value="all">Todas las clases</option><option value="A"' + (state.itemClass === "A" ? " selected" : "") + '>Clase A</option><option value="B"' + (state.itemClass === "B" ? " selected" : "") + '>Clase B</option><option value="C"' + (state.itemClass === "C" ? " selected" : "") + '>Clase C</option></select>' +
       '<select id="item-status-filter" class="filter-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="critical"' + (state.itemStatus === "critical" ? " selected" : "") + '>Crítico</option><option value="low"' + (state.itemStatus === "low" ? " selected" : "") + '>Bajo</option><option value="ok"' + (state.itemStatus === "ok" ? " selected" : "") + '>En nivel</option><option value="non"' + (state.itemStatus === "non" ? " selected" : "") + '>Sin reposición</option></select></div>' +
@@ -500,7 +502,7 @@
   function costChart(points, field, title, currency, color) {
     const values = points.map((p) => num(p[field])).filter((v) => v > 0);
     if (!values.length) return '<section class="panel cost-chart"><div class="panel-head"><div><h2 class="panel-title">' + title + '</h2><p class="panel-caption">Precio unitario registrado en cada ingreso.</p></div></div><div class="empty-state"><strong>Sin precios registrados</strong>Los nuevos ingresos aparecerán en este gráfico.</div></section>';
-    const width = 680, height = 260, left = 62, right = 22, top = 18, bottom = 42;
+    const width = 680, height = 260, left = 62, right = 58, top = 18, bottom = 42;
     const min = Math.min(...values), max = Math.max(...values), span = max - min || Math.max(1, max * 0.1);
     const xy = points.map((p, i) => {
       const x = points.length === 1 ? width / 2 : left + i * (width - left - right) / (points.length - 1);
@@ -517,7 +519,7 @@
     return '<section class="panel cost-chart"><div class="panel-head"><div><h2 class="panel-title">' + title + '</h2><p class="panel-caption">' + points.length + ' ingresos con precio registrado</p></div></div><div class="chart-scroll"><svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + esc(title) + '">' + ticks + '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' + xy.map((p,i) => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" fill="' + color + '"><title>' + esc(shortDate(points[i].created_at || points[i].createdAt) + " · " + currency(points[i][field])) + '</title></circle>').join("") + '<text x="' + left + '" y="' + (height-10) + '" fill="#8793a4" font-size="11">' + esc(start) + '</text><text x="' + (width-right) + '" y="' + (height-10) + '" text-anchor="end" fill="#8793a4" font-size="11">' + esc(end) + '</text></svg></div></section>';
   }
   function renderCostAnalysis() {
-    const items = activeItems();
+    const items = activeItems().slice().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
     if (!items.length) return '<section class="panel"><div class="empty-state"><strong>No hay materiales</strong>Agregá materiales al catálogo para analizar sus precios.</div></section>';
     if (!items.some((i) => String(i.id) === String(state.priceHistoryItem))) state.priceHistoryItem = String(items[0].id);
     const selected = items.find((i) => String(i.id) === String(state.priceHistoryItem));
@@ -1005,6 +1007,12 @@
   function onSearchInput(e) {
     if (e.target.id === "item-search") {
       state.itemSearch = e.target.value;
+      const region = $("#item-table-region");
+      if (region) region.innerHTML = renderItemTable(filteredItems(), true);
+      const count = $("#item-result-count"); if (count) count.textContent = filteredItems().length;
+    }
+    if (e.target.id === "item-code-search") {
+      state.itemCodeSearch = e.target.value;
       const region = $("#item-table-region");
       if (region) region.innerHTML = renderItemTable(filteredItems(), true);
       const count = $("#item-result-count"); if (count) count.textContent = filteredItems().length;
