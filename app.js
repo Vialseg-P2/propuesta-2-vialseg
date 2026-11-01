@@ -406,7 +406,9 @@
   }
   function currentReportPeriod() {
     const now = new Date();
-    if (!state.reportFrom) state.reportFrom = dateInputValue(new Date(now.getFullYear(), now.getMonth(), 1));
+    const lastMonth = new Date(now);
+    lastMonth.setDate(lastMonth.getDate() - 29);
+    if (!state.reportFrom) state.reportFrom = dateInputValue(lastMonth);
     if (!state.reportTo) state.reportTo = dateInputValue(now);
     return { from: state.reportFrom, to: state.reportTo };
   }
@@ -449,7 +451,7 @@
       '<tr><td><div class="table-item"><span><span class="item-name">' + esc(row.name) + '</span><span class="item-sku">' + esc(row.sku) + '</span></span></div></td>' +
       '<td>' + esc(row.unit || "—") + '</td><td>' + quantity(row.entries) + '</td><td>' + quantity(row.consumption) + '</td><td>' + (row.adjustment > 0 ? "+" : "") + quantity(row.adjustment) + '</td><td>' + row.count + '</td></tr>'
     ).join("") : '<tr><td colspan="6"><div class="empty-state"><strong>No hay movimientos en este período</strong>Probá elegir otro rango de fechas.</div></td></tr>';
-    return '<section class="panel report-filter-panel"><div class="panel-head"><div><h2 class="panel-title">Período del reporte</h2><p class="panel-caption">Elegí las fechas que querés consultar.</p></div></div>' +
+    return '<section class="panel report-filter-panel"><div class="panel-head"><div><h2 class="panel-title">Período del reporte</h2><p class="panel-caption">Por defecto se muestran los últimos 30 días; podés cambiar el rango.</p></div></div>' +
       '<div class="report-filter-row"><label class="report-date-field">Desde<input id="report-from" type="date" value="' + esc(report.from) + '"></label><label class="report-date-field">Hasta<input id="report-to" type="date" value="' + esc(report.to) + '"></label><button class="button button-dark" type="button" data-action="apply-report-period">Aplicar período</button></div></section>' +
       '<div class="kpi-grid report-kpis">' +
       kpi("MOVIMIENTOS", report.movements.length, periodText, "arrows", "blue") +
