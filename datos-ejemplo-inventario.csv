@@ -1,5 +1,4 @@
 codigo,nombre,categoria,unidad,stock,costo_unitario,consumo_mensual,stock_seguridad,plazo_dias,lote_reposicion,proveedor,ubicacion,se_repone,fecha_ultimo_movimiento_simulada,tipo_ultimo_movimiento_simulado,cantidad_ultimo_movimiento_simulada
-MUESTRA-001,EJEMPLO - Cable tipo taller,Electricidad,m,120,1850,55,30,7,25,Proveedor Ficticio A,Deposito - Estante A,si,2026-10-22,ingreso,25
 MUESTRA-002,EJEMPLO - Fusible industrial,Electricidad,u,80,760,28,20,4,50,Proveedor Ficticio B,Deposito - Estante B,si,2026-10-18,consumo,6
 MUESTRA-003,EJEMPLO - Lampara de senalizacion LED,Electricidad,u,24,5400,12,10,8,12,Proveedor Ficticio C,Deposito - Estante C,si,2026-10-14,consumo,2
 MUESTRA-004,EJEMPLO - Guantes de proteccion,Seguridad,par,45,6200,18,15,5,20,Proveedor Ficticio D,Deposito - Estante D,si,2026-10-10,ingreso,20
