@@ -781,7 +781,8 @@
     if (e.target.closest("#settings-button")) { showSettings(); return; }
     if (e.target.closest("#mobile-menu")) { $("#sidebar").classList.toggle("open"); return; }
     if (e.target.closest("#top-notifications")) { setView("replenishment"); return; }
-    if (e.target.closest("[data-close-modal]")) { closeModal(); return; }
+    const closeTarget = e.target.closest("[data-close-modal]");
+    if (closeTarget && (e.target === closeTarget || closeTarget.matches("button"))) { closeModal(); return; }
     if (e.target.id === "modal-root") closeModal();
   }
 
