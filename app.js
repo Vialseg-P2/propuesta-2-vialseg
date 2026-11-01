@@ -213,7 +213,7 @@
       for (const item of missing) {
         item.avgCostUsd = item.unitCost / quote.rate;
         item.quoteRate = quote.rate;
-        await api("inventory_items?id=eq." + encodeURIComponent(item.id), { method: "PATCH", body: JSON.stringify({ costo_promedio_usd: item.avgCostUsd, cotizacion_blue_base: quote.rate }) });
+        if (state.mode !== "demo") await api("inventory_items?id=eq." + encodeURIComponent(item.id), { method: "PATCH", body: JSON.stringify({ costo_promedio_usd: item.avgCostUsd, cotizacion_blue_base: quote.rate }) });
       }
     } catch (_) { /* Un fallo de cotización no bloquea el acceso al inventario. */ }
   }
@@ -532,6 +532,8 @@
     if (!itemId) return;
     state.priceHistoryItem = String(itemId);
     if (state.mode === "demo") { render(); return; }
+    state.priceHistoryData = [];
+    if (state.view === "costs") render();
     const rows = await api("inventory_movements?select=created_at,precio_unitario_ars,precio_unitario_usd,cotizacion_blue,cotizacion_fecha,cotizacion_fuente&item_id=eq." + encodeURIComponent(itemId) + "&tipo=eq.ingreso&precio_unitario_usd=not.is.null&order=created_at.asc&limit=1000");
     state.priceHistoryData = (rows || []).map((row) => ({ created_at: row.cotizacion_fecha || row.created_at, unitCostArs: num(row.precio_unitario_ars), unitCostUsd: num(row.precio_unitario_usd), blueRate: num(row.cotizacion_blue), quoteSource: row.cotizacion_fuente }));
     if (state.view === "costs") render();
@@ -727,7 +729,7 @@
     if (duplicate) throw new Error("Ya existe un material con ese código.");
     const item = {
       id: id || "demo-i-" + Date.now(), sku: sku, name: name, category: category, unit: unit,
-      stock: existing ? num(existing.stock) : 0, unitCost: num(val("f-cost")), monthlyUse: num(val("f-use")),
+      stock: existing ? num(existing.stock) : 0, unitCost: num(val("f-cost")), avgCostUsd: existing ? num(existing.avgCostUsd) : 0, quoteRate: existing ? num(existing.quoteRate) : 0, monthlyUse: num(val("f-use")),
       safetyStock: num(val("f-safety")), leadDays: num(val("f-lead")), lotSize: lotSize,
       supplier: val("f-supplier"), location: val("f-location"), replenish: $("#f-replenish").checked, active: true, updatedAt: new Date().toISOString()
     };
@@ -874,6 +876,8 @@
           unit: cell(col.unit, existing ? existing.unit : "u"),
           stock: existing ? existing.stock : 0,
           unitCost: parseNum(cell(col.cost, existing ? existing.unitCost : 0)),
+          avgCostUsd: existing ? num(existing.avgCostUsd) : 0,
+          quoteRate: existing ? num(existing.quoteRate) : 0,
           monthlyUse: parseNum(cell(col.use, existing ? existing.monthlyUse : 0)),
           safetyStock: parseNum(cell(col.safety, existing ? existing.safetyStock : 0)),
           leadDays: parseNum(cell(col.lead, existing ? existing.leadDays : 0)),
@@ -895,6 +899,7 @@
           }
         }
       }
+      await initializeUsdCostBaseline();
       render();
       toast("Importación finalizada: " + created + " nuevos, " + updated + " actualizados, " + changedStock + " ajustes de stock.");
     } finally { loading(); }
