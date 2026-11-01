@@ -166,8 +166,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .item-thumb{display:grid;width:31px;height:31px;flex:none;place-items:center;border-radius:8px;background:#eef6fa;color:#1982a0}
 .item-thumb svg{width:15px;height:15px}
 .item-thumb.electronics{background:#eef1fb;color:#606fae}.item-thumb.hardware{background:#f3f2ef;color:#8b7a4f}.item-thumb.cable{background:#f0f7ec;color:#659844}
-.item-name{max-width:180px;overflow:hidden;color:#334155;font-size:10px;font-weight:700;text-overflow:ellipsis}
-.item-sku{margin-top:3px;color:#a0a9b4;font-size:9px}
+.item-name{display:block;max-width:180px;overflow:hidden;color:#334155;font-size:10px;font-weight:700;text-overflow:ellipsis}
+.item-sku{display:block;margin-top:3px;color:#a0a9b4;font-size:9px}
 .stock-cell{min-width:105px}
 .stock-line{display:flex;align-items:center;gap:8px}
 .stock-bar{width:48px;height:5px;overflow:hidden;border-radius:8px;background:#edf0f4}
