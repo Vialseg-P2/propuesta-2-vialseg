@@ -446,8 +446,8 @@
     const periodText = report.from + " a " + report.to;
     const bodyRows = report.rows.length ? report.rows.map((row) =>
       '<tr><td><div class="table-item"><span><span class="item-name">' + esc(row.name) + '</span><span class="item-sku">' + esc(row.sku) + '</span></span></div></td>' +
-      '<td>' + esc(row.unit || "—") + '</td><td>' + quantity(row.entries) + '</td><td>' + quantity(row.consumption) + '</td><td>' + (row.adjustment > 0 ? "+" : "") + quantity(row.adjustment) + '</td><td>' + row.count + '</td></tr>'
-    ).join("") : '<tr><td colspan="6"><div class="empty-state"><strong>No hay movimientos en este período</strong>Probá elegir otro rango de fechas.</div></td></tr>';
+      '<td>' + esc(row.unit || "—") + '</td><td>' + quantity(row.entries) + '</td><td>' + quantity(row.consumption) + '</td><td>' + row.count + '</td></tr>'
+    ).join("") : '<tr><td colspan="5"><div class="empty-state"><strong>No hay movimientos en este período</strong>Probá elegir otro rango de fechas.</div></td></tr>';
     return '<section class="panel report-filter-panel"><div class="panel-head"><div><h2 class="panel-title">Período del reporte</h2><p class="panel-caption">Por defecto se muestran los últimos 30 días; podés cambiar el rango.</p></div></div>' +
       '<div class="report-filter-row"><label class="report-date-field">Desde<input id="report-from" type="date" value="' + esc(report.from) + '"></label><label class="report-date-field">Hasta<input id="report-to" type="date" value="' + esc(report.to) + '"></label><button class="button button-dark" type="button" data-action="apply-report-period">Aplicar período</button></div></section>' +
       '<div class="kpi-grid report-kpis">' +
@@ -455,12 +455,12 @@
       kpi("INGRESOS", report.entries, "Operaciones de entrada", "upload", "lime") +
       kpi("CONSUMOS", report.consumptions, "Operaciones de salida", "box", "alert") +
       kpi("AJUSTES", report.adjustments, "Conteos y correcciones", "settings", "") +
-      '</div><section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Detalle por material <span class="pill-count">' + report.rows.length + '</span></h2><p class="panel-caption">Cantidades del período por unidad de medida.</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>MATERIAL</th><th>UNIDAD</th><th>INGRESOS</th><th>CONSUMOS</th><th>AJUSTE NETO</th><th>MOV.</th></tr></thead><tbody>' + bodyRows + '</tbody></table></div></section>';
+      '</div><section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Detalle por material <span class="pill-count">' + report.rows.length + '</span></h2><p class="panel-caption">Cantidades del período por unidad de medida.</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>MATERIAL</th><th>UNIDAD</th><th>INGRESOS</th><th>CONSUMOS</th><th>MOV.</th></tr></thead><tbody>' + bodyRows + '</tbody></table></div></section>';
   }
   function exportPeriodReport() {
     const report = calculatePeriodReport();
-    const headers = ["codigo","material","unidad","ingresos","consumos","ajuste_neto","movimientos"];
-    const rows = report.rows.map((row) => [row.sku,row.name,row.unit,row.entries,row.consumption,row.adjustment,row.count]);
+    const headers = ["codigo","material","unidad","ingresos","consumos","movimientos"];
+    const rows = report.rows.map((row) => [row.sku,row.name,row.unit,row.entries,row.consumption,row.count]);
     downloadCSV("vialseg-reporte-" + report.from + "_a_" + report.to + ".csv", headers, rows);
   }
 
