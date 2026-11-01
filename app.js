@@ -388,8 +388,7 @@
     let list = activeItems();
     const q = state.itemSearch.toLowerCase().trim();
     if (q) list = list.filter((i) => String(i.name || "").toLowerCase().includes(q));
-    const locationQuery = state.itemLocationSearchEnabled ? state.itemLocationSearch.toLowerCase().trim() : "";
-    if (locationQuery) list = list.filter((i) => String(i.location || "").toLowerCase().includes(locationQuery));
+    if (state.itemLocation !== "all") list = list.filter((i) => String(i.location || "").toLowerCase() === state.itemLocation.toLowerCase());
     const codeQuery = state.itemCodeSearch.toLowerCase().trim();
     if (codeQuery) list = list.filter((i) => String(i.sku || "").toLowerCase().includes(codeQuery));
     if (state.itemCategory !== "all") list = list.filter((i) => String(i.category || "General").toLowerCase() === state.itemCategory.toLowerCase());
