@@ -533,10 +533,10 @@
     if (!items.length) return '<section class="panel"><div class="empty-state"><strong>No hay materiales</strong>Agregá materiales al catálogo para analizar sus precios.</div></section>';
     if (!items.some((i) => String(i.id) === String(state.priceHistoryItem))) state.priceHistoryItem = String(items[0].id);
     const selected = items.find((i) => String(i.id) === String(state.priceHistoryItem));
-    const options = items.map((item) => '<option value="' + esc(item.id) + '"' + (String(item.id) === String(selected.id) ? " selected" : "") + '>' + esc(item.sku + " · " + item.name) + '</option>').join("");
+    const options = items.map((item) => '<option value="' + esc(item.sku + " · " + item.name) + '"></option><option value="' + esc(item.sku) + '" label="' + esc(item.name) + '"></option><option value="' + esc(item.name) + '" label="' + esc(item.sku) + '"></option>').join("");
     const points = state.mode === "demo" ? state.movements.filter((m) => String(m.itemId) === String(selected.id) && m.type === "ingreso" && num(m.unitCostArs) > 0).sort((a,b) => new Date(a.createdAt)-new Date(b.createdAt)) : state.priceHistoryData;
     const ars = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(num(v));
-    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde al precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<select id="price-history-item">' + options + '</select></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
+    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde al precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<input id="price-history-item" type="search" list="price-history-items" value="' + esc(selected.sku + " · " + selected.name) + '" placeholder="Buscar por nombre o código" autocomplete="off"><datalist id="price-history-items">' + options + '</datalist></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
       '<div class="cost-chart-grid">' + costChart(points, "unitCostArs", "Precio unitario en ARS", ars, "#0795b8") + costChart(points, "unitCostUsd", "Precio unitario en USD", moneyUSD, "#79bd32") + '</div>' +
       '<p class="cost-note">El equivalente en USD se calcula con la cotización vendedora del dólar blue guardada para cada ingreso.</p>';
   }
@@ -1163,7 +1163,7 @@
     if (e.target.id === "item-class-filter") { state.itemClass = e.target.value; render(); }
     if (e.target.id === "item-status-filter") { state.itemStatus = e.target.value; render(); }
     if (e.target.id === "movement-type-filter") { state.movementType = e.target.value; render(); }
-    if (e.target.id === "price-history-item") loadPriceHistory(e.target.value).catch((error) => toast(error.message || "No se pudo cargar el historial de precios.", "error"));
+    if (e.target.id === "price-history-item") { const value = e.target.value.trim().toLocaleLowerCase("es"); const item = activeItems().find((candidate) => [candidate.sku, candidate.name, candidate.sku + " · " + candidate.name].some((option) => String(option || "").trim().toLocaleLowerCase("es") === value)); if (item) loadPriceHistory(item.id).catch((error) => toast(error.message || "No se pudo cargar el historial de precios.", "error")); }
     if (e.target.id === "m-type" || e.target.id === "m-item") updateMovementHelp();
     if (e.target.id === "csv-file" && e.target.files && e.target.files[0]) importCSV(e.target.files[0]).catch((error) => toast(error.message || "No se pudo importar el CSV.", "error"));
   });
