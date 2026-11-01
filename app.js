@@ -3,7 +3,7 @@
 
   const CONFIG = window.VIALSEG_INVENTORY_CONFIG || {};
   const STORAGE_KEY = "vialseg-inventory-demo-v1";
-  const VIEW_NAMES = { overview: "Resumen", items: "Materiales", movements: "Movimientos", reports: "Reportes", replenishment: "Reposición" };
+  const VIEW_NAMES = { overview: "Resumen", items: "Materiales", movements: "Movimientos", reports: "Reportes", costs: "Costos", replenishment: "Reposición" };
   const ICONS = {
     grid: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
     box: "m12 3 9 5-9 5-9-5 9-5zM3 8v9l9 5 9-5V8M12 13v9",
@@ -26,12 +26,13 @@
     close: "m18 6-12 12M6 6l12 12"
   };
 
-  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "" };
+  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "", priceHistoryItem: "", priceHistoryData: [] };
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
   const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
   const num = (v) => Number.isFinite(Number(v)) ? Number(v) : 0;
   const money = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(num(v));
+  const moneyUSD = (v) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(num(v));
   const quantity = (v) => new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(num(v));
   const shortDate = (v) => {
     const d = new Date(v);
@@ -45,6 +46,14 @@
   const show = (el) => { if (el) el.hidden = false; };
   const hide = (el) => { if (el) el.hidden = true; };
   const configured = () => Boolean(CONFIG.supabaseUrl && CONFIG.supabaseKey);
+  async function fetchBlueQuote() {
+    const response = await fetch("https://ar.dolarapi.com/v1/dolares/blue", { cache: "no-store" });
+    if (!response.ok) throw new Error("La cotización del dólar blue no está disponible. Intentá de nuevo.");
+    const quote = await response.json();
+    const rate = num(quote.venta);
+    if (!(rate > 0)) throw new Error("No se recibió una cotización vendedora válida.");
+    return { rate: rate, at: quote.fechaActualizacion || new Date().toISOString(), source: "DolarAPI · dólar blue venta" };
+  }
 
   function seedItems() {
     return [
@@ -93,10 +102,10 @@
   function itemFromRow(row) {
     return {
       id: row.id, sku: row.sku, name: row.nombre, category: row.categoria || "General", unit: row.unidad || "u",
-      stock: num(row.stock), unitCost: num(row.costo_unitario), monthlyUse: num(row.consumo_mensual),
+      stock: num(row.stock), unitCost: num(row.costo_unitario), avgCostUsd: num(row.costo_promedio_usd), monthlyUse: num(row.consumo_mensual),
       safetyStock: num(row.stock_seguridad), leadDays: num(row.plazo_dias), lotSize: num(row.lote_reposicion) || 1,
       supplier: row.proveedor || "", location: row.ubicacion || "", replenish: row.se_repone !== false, active: row.activo !== false,
-      updatedAt: row.updated_at || row.created_at
+      updatedAt: row.updated_at || row.created_at, quoteRate: num(row.cotizacion_blue_base)
     };
   }
   function actorLabel(actor) {
@@ -115,10 +124,10 @@
   }
 
   function movementFromRow(row) {
-    return { id: row.id, itemId: row.item_id, sku: row.sku, itemName: row.item_name, type: row.tipo, quantity: num(row.cantidad), stockBefore: num(row.stock_antes), stockAfter: num(row.stock_despues), note: row.nota || "", reference: row.referencia || "", actor: row.actor || "", createdAt: row.created_at };
+    return { id: row.id, itemId: row.item_id, sku: row.sku, itemName: row.item_name, type: row.tipo, quantity: num(row.cantidad), stockBefore: num(row.stock_antes), stockAfter: num(row.stock_despues), note: row.nota || "", reference: row.referencia || "", actor: row.actor || "", createdAt: row.created_at, unitCostArs: num(row.precio_unitario_ars), unitCostUsd: num(row.precio_unitario_usd), blueRate: num(row.cotizacion_blue), quoteAt: row.cotizacion_fecha, quoteSource: row.cotizacion_fuente || "" };
   }
   function itemToRow(item) {
-    return { sku: item.sku, nombre: item.name, categoria: item.category, unidad: item.unit, stock: num(item.stock), costo_unitario: num(item.unitCost), consumo_mensual: num(item.monthlyUse), stock_seguridad: num(item.safetyStock), plazo_dias: num(item.leadDays), lote_reposicion: num(item.lotSize) || 1, proveedor: item.supplier || "", ubicacion: item.location || "", se_repone: item.replenish !== false, activo: item.active !== false, updated_at: new Date().toISOString() };
+    return { sku: item.sku, nombre: item.name, categoria: item.category, unidad: item.unit, stock: num(item.stock), costo_unitario: num(item.unitCost), costo_promedio_usd: num(item.avgCostUsd), cotizacion_blue_base: num(item.quoteRate), consumo_mensual: num(item.monthlyUse), stock_seguridad: num(item.safetyStock), plazo_dias: num(item.leadDays), lote_reposicion: num(item.lotSize) || 1, proveedor: item.supplier || "", ubicacion: item.location || "", se_repone: item.replenish !== false, activo: item.active !== false, updated_at: new Date().toISOString() };
   }
 
   function getSession() {
@@ -193,6 +202,20 @@
     ]);
     state.items = (rows[0] || []).map(itemFromRow);
     state.movements = (rows[1] || []).map(movementFromRow);
+    await initializeUsdCostBaseline();
+  }
+
+  async function initializeUsdCostBaseline() {
+    const missing = state.items.filter((item) => !(item.avgCostUsd > 0) && item.unitCost > 0);
+    if (!missing.length) return;
+    try {
+      const quote = await fetchBlueQuote();
+      for (const item of missing) {
+        item.avgCostUsd = item.unitCost / quote.rate;
+        item.quoteRate = quote.rate;
+        await api("inventory_items?id=eq." + encodeURIComponent(item.id), { method: "PATCH", body: JSON.stringify({ costo_promedio_usd: item.avgCostUsd, cotizacion_blue_base: quote.rate }) });
+      }
+    } catch (_) { /* Un fallo de cotización no bloquea el acceso al inventario. */ }
   }
 
   function reorderPoint(item) {
@@ -212,12 +235,12 @@
     return "ok";
   }
   function withAbc(items) {
-    const sorted = items.slice().sort((a, b) => (num(b.monthlyUse) * num(b.unitCost)) - (num(a.monthlyUse) * num(a.unitCost)));
-    const total = sorted.reduce((s, item) => s + num(item.monthlyUse) * num(item.unitCost), 0);
+    const sorted = items.slice().sort((a, b) => (num(b.monthlyUse) * num(b.avgCostUsd)) - (num(a.monthlyUse) * num(a.avgCostUsd)));
+    const total = sorted.reduce((s, item) => s + num(item.monthlyUse) * num(item.avgCostUsd), 0);
     let cumulative = 0;
     const map = {};
     sorted.forEach((item) => {
-      const value = num(item.monthlyUse) * num(item.unitCost);
+      const value = num(item.monthlyUse) * num(item.avgCostUsd);
       cumulative += total > 0 ? value / total : 0;
       map[item.id] = total <= 0 ? "C" : cumulative - value / total < 0.8 ? "A" : cumulative - value / total < 0.95 ? "B" : "C";
     });
@@ -238,6 +261,7 @@
     const sidebar = $("#sidebar");
     if (sidebar) sidebar.classList.remove("open");
     render();
+    if (view === "costs") loadPriceHistory(state.priceHistoryItem || (activeItems()[0] && activeItems()[0].id)).catch((error) => toast(error.message || "No se pudo cargar el historial de precios.", "error"));
   }
   function paintIdentity() {
     const who = state.user && (state.user.user_metadata && state.user.user_metadata.username || (state.user.email && state.user.email.split("@")[0]) || state.user.name) || "Administración";
@@ -275,7 +299,7 @@
     $("#page-heading").innerHTML = '<div><h1 class="page-title">' + VIEW_NAMES[state.view] + '</h1><p class="page-subtitle">' + viewSubtitle(state.view) + '</p></div><div class="heading-actions">' + headingActions(state.view) + '</div>';
     $("#notice-strip").innerHTML = state.mode === "demo" ? '<div class="demo-banner"><span class="banner-icon">i</span><span><strong>Modo demostración.</strong> Estos datos son ficticios y se guardan únicamente en este navegador.</span><button data-action="open-settings">Ver cómo conectar la base</button></div>' : "";
     const mainContent = $("#main-content");
-    mainContent.innerHTML = state.view === "overview" ? renderOverview() : state.view === "items" ? renderItems() : state.view === "movements" ? renderMovements() : state.view === "reports" ? renderReports() : renderReplenishment();
+    mainContent.innerHTML = state.view === "overview" ? renderOverview() : state.view === "items" ? renderItems() : state.view === "movements" ? renderMovements() : state.view === "reports" ? renderReports() : state.view === "costs" ? renderCostAnalysis() : renderReplenishment();
     mainContent.classList.remove("content-enter");
     void mainContent.offsetWidth;
     mainContent.classList.add("content-enter");
@@ -289,6 +313,7 @@
       items: "Consultá los materiales y sus parámetros de abastecimiento.",
       movements: "Cada entrada, consumo y ajuste deja un registro consultable.",
       reports: "Consultá ingresos, consumos y ajustes en un período.",
+      costs: "Compará la evolución del precio de compra en pesos y dólares.",
       replenishment: "Revisá qué materiales conviene reponer y por qué."
     }[view] || "";
   }
@@ -298,7 +323,7 @@
   }
   function renderOverview() {
     const items = activeItems();
-    const value = items.reduce((sum, item) => sum + num(item.stock) * num(item.unitCost), 0);
+    const value = items.reduce((sum, item) => sum + num(item.stock) * num(item.avgCostUsd), 0);
     const noRestock = items.filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
     const abc = withAbc(items);
     const counts = ["A", "B", "C"].map((key) => ({ key: key, count: Object.values(abc).filter((x) => x === key).length }));
@@ -306,7 +331,7 @@
     const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999)).slice(0, 5);
     return '<div class="kpi-grid">' +
       kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
-      kpi("VALOR DEL STOCK", money(value), "", "coin", "lime") +
+      kpi("VALOR DEL STOCK", moneyUSD(value), "Costo promedio de compra", "coin", "lime") +
       kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
       kpi("SUGERENCIAS DE REPOSICIÓN", candidates().length, "Según consumo y plazo de entrega", "bell", "") +
       '</div><div class="content-grid">' +
@@ -471,6 +496,46 @@
     downloadCSV("vialseg-reporte-" + report.from + "_a_" + report.to + ".csv", headers, rows);
   }
 
+
+  function costChart(points, field, title, currency, color) {
+    const values = points.map((p) => num(p[field])).filter((v) => v > 0);
+    if (!values.length) return '<section class="panel cost-chart"><div class="panel-head"><div><h2 class="panel-title">' + title + '</h2><p class="panel-caption">Precio unitario registrado en cada ingreso.</p></div></div><div class="empty-state"><strong>Sin precios registrados</strong>Los nuevos ingresos aparecerán en este gráfico.</div></section>';
+    const width = 680, height = 260, left = 62, right = 22, top = 18, bottom = 42;
+    const min = Math.min(...values), max = Math.max(...values), span = max - min || Math.max(1, max * 0.1);
+    const xy = points.map((p, i) => {
+      const x = points.length === 1 ? width / 2 : left + i * (width - left - right) / (points.length - 1);
+      const y = top + (max - num(p[field])) * (height - top - bottom) / span;
+      return [x, y];
+    });
+    const line = xy.map((p) => p.join(",")).join(" ");
+    const ticks = [0, .5, 1].map((ratio) => {
+      const y = top + ratio * (height - top - bottom);
+      const value = max - ratio * span;
+      return '<line x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '" stroke="#e8edf2"/><text x="' + (left-8) + '" y="' + (y+4) + '" text-anchor="end" fill="#8793a4" font-size="11">' + esc(currency(value)) + '</text>';
+    }).join("");
+    const start = shortDate(points[0].created_at || points[0].createdAt), end = shortDate(points[points.length-1].created_at || points[points.length-1].createdAt);
+    return '<section class="panel cost-chart"><div class="panel-head"><div><h2 class="panel-title">' + title + '</h2><p class="panel-caption">' + points.length + ' ingresos con precio registrado</p></div></div><div class="chart-scroll"><svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + esc(title) + '">' + ticks + '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' + xy.map((p,i) => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" fill="' + color + '"><title>' + esc(shortDate(points[i].created_at || points[i].createdAt) + " · " + currency(points[i][field])) + '</title></circle>').join("") + '<text x="' + left + '" y="' + (height-10) + '" fill="#8793a4" font-size="11">' + esc(start) + '</text><text x="' + (width-right) + '" y="' + (height-10) + '" text-anchor="end" fill="#8793a4" font-size="11">' + esc(end) + '</text></svg></div></section>';
+  }
+  function renderCostAnalysis() {
+    const items = activeItems();
+    if (!items.length) return '<section class="panel"><div class="empty-state"><strong>No hay materiales</strong>Agregá materiales al catálogo para analizar sus precios.</div></section>';
+    if (!items.some((i) => String(i.id) === String(state.priceHistoryItem))) state.priceHistoryItem = String(items[0].id);
+    const selected = items.find((i) => String(i.id) === String(state.priceHistoryItem));
+    const options = items.map((item) => '<option value="' + esc(item.id) + '"' + (String(item.id) === String(selected.id) ? " selected" : "") + '>' + esc(item.sku + " · " + item.name) + '</option>').join("");
+    const points = state.mode === "demo" ? state.movements.filter((m) => String(m.itemId) === String(selected.id) && m.type === "ingreso" && num(m.unitCostArs) > 0).sort((a,b) => new Date(a.createdAt)-new Date(b.createdAt)) : state.priceHistoryData;
+    const ars = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(num(v));
+    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde al precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<select id="price-history-item">' + options + '</select></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
+      '<div class="cost-chart-grid">' + costChart(points, "unitCostArs", "Precio unitario en ARS", ars, "#0795b8") + costChart(points, "unitCostUsd", "Precio unitario en USD", moneyUSD, "#79bd32") + '</div>' +
+      '<p class="cost-note">El equivalente en USD se calcula con la cotización vendedora del dólar blue guardada para cada ingreso.</p>';
+  }
+  async function loadPriceHistory(itemId) {
+    if (!itemId) return;
+    state.priceHistoryItem = String(itemId);
+    if (state.mode === "demo") { render(); return; }
+    const rows = await api("inventory_movements?select=created_at,precio_unitario_ars,precio_unitario_usd,cotizacion_blue,cotizacion_fecha,cotizacion_fuente&item_id=eq." + encodeURIComponent(itemId) + "&tipo=eq.ingreso&precio_unitario_usd=not.is.null&order=created_at.asc&limit=1000");
+    state.priceHistoryData = (rows || []).map((row) => ({ created_at: row.cotizacion_fecha || row.created_at, unitCostArs: num(row.precio_unitario_ars), unitCostUsd: num(row.precio_unitario_usd), blueRate: num(row.cotizacion_blue), quoteSource: row.cotizacion_fuente }));
+    if (state.view === "costs") render();
+  }
   function renderReplenishment() {
     const list = candidates().sort((a, b) => suggestedQuantity(b) - suggestedQuantity(a));
     const totalCritical = criticalItems().length;
@@ -535,6 +600,7 @@
       field("Material", '<select id="m-item">' + options + '</select>') +
       field("Tipo de movimiento", '<select id="m-type">' + typeOptions + '</select>') +
       field('<span id="m-quantity-label">Cantidad</span>', '<input id="m-quantity" type="number" min="0" step="0.01" required placeholder="0">') +
+      '<div class="field full" id="m-unit-cost-field" hidden><label for="m-unit-cost-ars">Precio pagado por unidad (ARS)</label><input id="m-unit-cost-ars" type="number" min="0.01" step="0.01" placeholder="0,00"><small id="m-blue-quote-note" class="field-hint">Se convertirá a USD con el dólar blue vendedor al registrar el ingreso.</small></div>' +
       field("Referencia", '<input id="m-reference" maxlength="80" placeholder="Orden de trabajo, compra…">') +
       '<div class="field full">' + '<label for="m-note">Motivo o detalle</label><textarea id="m-note" required maxlength="300" placeholder="Dejá una nota breve para mantener la trazabilidad"></textarea></div>' +
       '<div class="field full"><div class="form-info" id="movement-help"></div></div></div></form>';
@@ -548,7 +614,9 @@
     $("#m-quantity-label").textContent = type === "ajuste" ? "Nuevo stock contado" : "Cantidad";
     $("#m-quantity").placeholder = type === "ajuste" ? quantity(selected.stock) : "0";
     $("#m-quantity").max = type === "consumo" ? String(selected.stock) : "";
-    $("#movement-help").textContent = type === "ingreso" ? "Stock actual: " + quantity(selected.stock) + " " + selected.unit + ". La cantidad se suma." :
+    $("#m-unit-cost-field").hidden = type !== "ingreso";
+    $("#m-unit-cost-ars").required = type === "ingreso";
+    $("#movement-help").textContent = type === "ingreso" ? "Stock actual: " + quantity(selected.stock) + " " + selected.unit + ". La cantidad se suma; se guarda el precio pagado en ARS y su equivalente en USD." :
       type === "consumo" ? "Stock actual: " + quantity(selected.stock) + " " + selected.unit + ". No se permite consumir más de lo disponible." :
       "Stock actual: " + quantity(selected.stock) + " " + selected.unit + ". Ingresá el resultado del conteo; se registra la diferencia.";
   }
@@ -574,7 +642,11 @@
       if (current) Object.assign(current, item, { updatedAt: new Date().toISOString() });
       else state.items.push(item);
       persistDemo();
-      if (isNew && num(initialStock) > 0) await addMovement({ itemId: item.id, type: "ajuste", quantity: num(initialStock), note: "Stock inicial del alta", reference: "ALTA", actor: state.user.name, suppressRender: true });
+      if (isNew && num(initialStock) > 0) {
+        if (!(num(item.unitCost) > 0)) throw new Error("Ingresá el costo unitario en ARS para registrar el stock inicial.");
+        const quote = await fetchBlueQuote();
+        await addMovement({ itemId: item.id, type: "ingreso", quantity: num(initialStock), unitCostArs: num(item.unitCost), blueRate: quote.rate, unitCostUsd: num(item.unitCost) / quote.rate, quoteAt: quote.at, quoteSource: quote.source, note: "Stock inicial del alta", reference: "ALTA", actor: state.user.name, suppressRender: true });
+      }
       return item;
     }
     const payload = itemToRow(item);
@@ -590,7 +662,11 @@
       if (!savedRow) throw new Error("Supabase no devolvió el material guardado. Revisá la conexión y los permisos de lectura de inventory_items.");
       const saved = itemFromRow(savedRow);
       state.items.push(saved);
-      if (num(initialStock) > 0) await addMovement({ itemId: saved.id, type: "ajuste", quantity: num(initialStock), note: "Stock inicial del alta", reference: "ALTA", actor: currentActor(), suppressRender: true });
+      if (num(initialStock) > 0) {
+        if (!(num(item.unitCost) > 0)) throw new Error("Ingresá el costo unitario en ARS para registrar el stock inicial.");
+        const quote = await fetchBlueQuote();
+        await addMovement({ itemId: saved.id, type: "ingreso", quantity: num(initialStock), unitCostArs: num(item.unitCost), blueRate: quote.rate, unitCostUsd: num(item.unitCost) / quote.rate, quoteAt: quote.at, quoteSource: quote.source, note: "Stock inicial del alta", reference: "ALTA", actor: currentActor(), suppressRender: true });
+      }
       return saved;
     }
     await api("inventory_items?id=eq." + encodeURIComponent(item.id), { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
@@ -614,16 +690,19 @@
     } else if (data.type === "ajuste") {
       delta = amount - num(item.stock);
     } else throw new Error("Tipo de movimiento no válido.");
+    if (data.type === "ingreso" && (!(data.unitCostArs > 0) || !(data.blueRate > 0) || !(data.unitCostUsd > 0))) throw new Error("El ingreso necesita precio en ARS y cotización blue.");
     const before = num(item.stock);
     const after = before + delta;
     if (after < 0) throw new Error("El ajuste no puede dejar stock negativo.");
     if (state.mode === "demo") {
       item.stock = after;
       item.updatedAt = new Date().toISOString();
-      state.movements.unshift({ id: "demo-m-" + Date.now(), itemId: item.id, sku: item.sku, itemName: item.name, type: data.type, quantity: delta, stockBefore: before, stockAfter: after, note: data.note || "", reference: data.reference || "", actor: data.actor || state.user.name || "Administración", createdAt: new Date().toISOString() });
+      if (data.type === "ingreso") { item.avgCostUsd = after > 0 ? ((before * num(item.avgCostUsd)) + amount * data.unitCostUsd) / after : data.unitCostUsd; item.unitCost = data.unitCostArs; item.quoteRate = data.blueRate; }
+      state.movements.unshift({ id: "demo-m-" + Date.now(), itemId: item.id, sku: item.sku, itemName: item.name, type: data.type, quantity: delta, stockBefore: before, stockAfter: after, note: data.note || "", reference: data.reference || "", actor: data.actor || state.user.name || "Administración", createdAt: new Date().toISOString(), unitCostArs: data.unitCostArs, unitCostUsd: data.unitCostUsd, blueRate: data.blueRate, quoteAt: data.quoteAt, quoteSource: data.quoteSource });
       persistDemo();
     } else {
-      await api("rpc/registrar_movimiento", { method: "POST", body: JSON.stringify({ p_item_id: item.id, p_tipo: data.type, p_cantidad: amount, p_nota: data.note || "", p_referencia: data.reference || "", p_actor: data.actor || currentActor() }) });
+      await api("rpc/registrar_movimiento", { method: "POST", body: JSON.stringify({ p_item_id: item.id, p_tipo: data.type, p_cantidad: amount, p_nota: data.note || "", p_referencia: data.reference || "", p_actor: data.actor || currentActor(), p_precio_unitario_ars: data.unitCostArs || null, p_precio_unitario_usd: data.unitCostUsd || null, p_cotizacion_blue: data.blueRate || null, p_cotizacion_fecha: data.quoteAt || null, p_cotizacion_fuente: data.quoteSource || null }) });
+      if (data.type === "ingreso") { item.avgCostUsd = after > 0 ? ((before * num(item.avgCostUsd)) + amount * data.unitCostUsd) / after : data.unitCostUsd; item.unitCost = data.unitCostArs; item.quoteRate = data.blueRate; }
       item.stock = after;
       item.updatedAt = new Date().toISOString();
       await loadRemoteMovements();
@@ -696,7 +775,14 @@
       const amount = val("m-quantity");
       const note = val("m-note");
       if (amount === "" || !note) throw new Error("Ingresá la cantidad y el motivo del movimiento.");
-      await addMovement({ itemId: itemId, type: type, quantity: num(amount), note: note, reference: val("m-reference"), actor: currentActor() || state.user.name });
+      let purchaseCost = {};
+      if (type === "ingreso") {
+        const ars = num(val("m-unit-cost-ars"));
+        if (!(ars > 0)) throw new Error("Ingresá el precio pagado por unidad en ARS.");
+        const quote = await fetchBlueQuote();
+        purchaseCost = { unitCostArs: ars, blueRate: quote.rate, unitCostUsd: ars / quote.rate, quoteAt: quote.at, quoteSource: quote.source };
+      }
+      await addMovement(Object.assign({ itemId: itemId, type: type, quantity: num(amount), note: note, reference: val("m-reference"), actor: currentActor() || state.user.name }, purchaseCost));
       closeModal();
       render();
       toast("Movimiento registrado y stock actualizado.");
@@ -970,6 +1056,7 @@
     if (e.target.id === "item-class-filter") { state.itemClass = e.target.value; render(); }
     if (e.target.id === "item-status-filter") { state.itemStatus = e.target.value; render(); }
     if (e.target.id === "movement-type-filter") { state.movementType = e.target.value; render(); }
+    if (e.target.id === "price-history-item") loadPriceHistory(e.target.value).catch((error) => toast(error.message || "No se pudo cargar el historial de precios.", "error"));
     if (e.target.id === "m-type" || e.target.id === "m-item") updateMovementHelp();
     if (e.target.id === "csv-file" && e.target.files && e.target.files[0]) importCSV(e.target.files[0]).catch((error) => toast(error.message || "No se pudo importar el CSV.", "error"));
   });
