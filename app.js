@@ -107,12 +107,32 @@
   }
 
   function getSession() {
-    try { return JSON.parse(sessionStorage.getItem("vialseg-inventory-session") || "null"); } catch (_) { return null; }
+    const key = "vialseg-inventory-session";
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) { sessionStorage.removeItem(key); return JSON.parse(saved); }
+      const temporary = sessionStorage.getItem(key);
+      if (temporary) {
+        localStorage.setItem(key, temporary);
+        sessionStorage.removeItem(key);
+        return JSON.parse(temporary);
+      }
+    } catch (_) {}
+    return null;
   }
   function putSession(s) {
+    const key = "vialseg-inventory-session";
     state.session = s;
-    if (s) sessionStorage.setItem("vialseg-inventory-session", JSON.stringify(s));
-    else sessionStorage.removeItem("vialseg-inventory-session");
+    try {
+      if (s) localStorage.setItem(key, JSON.stringify(s));
+      else localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    } catch (_) {
+      try {
+        if (s) sessionStorage.setItem(key, JSON.stringify(s));
+        else sessionStorage.removeItem(key);
+      } catch (_) {}
+    }
   }
   async function authRequest(path, body) {
     const response = await fetch(CONFIG.supabaseUrl.replace(/\/$/, "") + "/auth/v1/" + path, {
