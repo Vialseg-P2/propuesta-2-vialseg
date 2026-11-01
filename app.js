@@ -99,6 +99,21 @@
       updatedAt: row.updated_at || row.created_at
     };
   }
+  function actorLabel(actor) {
+    const value = String(actor || "").trim();
+    const fakeDomain = "@vialseg-inventario.example.com";
+    return value.toLowerCase().endsWith(fakeDomain) ? value.slice(0, -fakeDomain.length) : value;
+  }
+  function currentActor() {
+    const user = state.user || {};
+    const username = user.user_metadata && user.user_metadata.username;
+    if (username) return username;
+    const email = String(user.email || "").trim();
+    const fakeDomain = "@vialseg-inventario.example.com";
+    if (email.toLowerCase().endsWith(fakeDomain)) return email.slice(0, -fakeDomain.length);
+    return user.name || email || "Administración";
+  }
+
   function movementFromRow(row) {
     return { id: row.id, itemId: row.item_id, sku: row.sku, itemName: row.item_name, type: row.tipo, quantity: num(row.cantidad), stockBefore: num(row.stock_antes), stockAfter: num(row.stock_despues), note: row.nota || "", reference: row.referencia || "", actor: row.actor || "", createdAt: row.created_at };
   }
@@ -362,7 +377,7 @@
         const date = m.createdAt || m.created_at;
         const note = m.note || m.nota || "";
         const ref = m.reference || m.referencia || "";
-        const actor = m.actor || "";
+        const actor = actorLabel(m.actor || "");
         const iconText = type === "ingreso" ? "↑" : type === "consumo" ? "↓" : "↔";
         const label = type === "ingreso" ? "Ingreso" : type === "consumo" ? "Consumo" : "Ajuste";
         return '<tr><td>' + shortDate(date) + '</td><td><div class="table-item"><span class="mov-icon ' + esc(type) + '">' + iconText + '</span><span><span class="item-name">' + esc(itemName) + '</span><span class="item-sku">' + esc(sku) + (note ? " · " + esc(note) : "") + '</span></span></div></td><td><span class="badge plain ' + (type === "ingreso" ? "ok" : type === "consumo" ? "critical" : "neutral") + '">' + label + '</span></td><td class="mov-qty ' + (qty > 0 ? "positive" : qty < 0 ? "negative" : "") + '">' + (qty > 0 ? "+" : "") + quantity(qty) + '<small class="stock-change">' + quantity(m.stockBefore !== undefined ? m.stockBefore : m.stock_antes) + ' → ' + quantity(m.stockAfter !== undefined ? m.stockAfter : m.stock_despues) + '</small></td><td>' + (ref ? esc(ref) : '<span class="muted">—</span>') + '</td><td>' + (actor ? esc(actor) : '<span class="muted">—</span>') + '</td></tr>';
@@ -501,7 +516,7 @@
       if (!savedRow) throw new Error("Supabase no devolvió el material guardado. Revisá la conexión y los permisos de lectura de inventory_items.");
       const saved = itemFromRow(savedRow);
       state.items.push(saved);
-      if (num(initialStock) > 0) await addMovement({ itemId: saved.id, type: "ajuste", quantity: num(initialStock), note: "Stock inicial del alta", reference: "ALTA", actor: state.user.email, suppressRender: true });
+      if (num(initialStock) > 0) await addMovement({ itemId: saved.id, type: "ajuste", quantity: num(initialStock), note: "Stock inicial del alta", reference: "ALTA", actor: currentActor(), suppressRender: true });
       return saved;
     }
     await api("inventory_items?id=eq." + encodeURIComponent(item.id), { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
@@ -534,7 +549,7 @@
       state.movements.unshift({ id: "demo-m-" + Date.now(), itemId: item.id, sku: item.sku, itemName: item.name, type: data.type, quantity: delta, stockBefore: before, stockAfter: after, note: data.note || "", reference: data.reference || "", actor: data.actor || state.user.name || "Administración", createdAt: new Date().toISOString() });
       persistDemo();
     } else {
-      await api("rpc/registrar_movimiento", { method: "POST", body: JSON.stringify({ p_item_id: item.id, p_tipo: data.type, p_cantidad: amount, p_nota: data.note || "", p_referencia: data.reference || "", p_actor: data.actor || state.user.email || "" }) });
+      await api("rpc/registrar_movimiento", { method: "POST", body: JSON.stringify({ p_item_id: item.id, p_tipo: data.type, p_cantidad: amount, p_nota: data.note || "", p_referencia: data.reference || "", p_actor: data.actor || currentActor() }) });
       item.stock = after;
       item.updatedAt = new Date().toISOString();
       await loadRemoteMovements();
@@ -586,7 +601,7 @@
       const amount = val("m-quantity");
       const note = val("m-note");
       if (amount === "" || !note) throw new Error("Ingresá la cantidad y el motivo del movimiento.");
-      await addMovement({ itemId: itemId, type: type, quantity: num(amount), note: note, reference: val("m-reference"), actor: state.user.email || state.user.name });
+      await addMovement({ itemId: itemId, type: type, quantity: num(amount), note: note, reference: val("m-reference"), actor: currentActor() || state.user.name });
       closeModal();
       render();
       toast("Movimiento registrado y stock actualizado.");
@@ -610,7 +625,7 @@
   }
   function exportMovements() {
     const headers = ["fecha","codigo","material","tipo","cantidad","stock_antes","stock_despues","referencia","motivo","responsable"];
-    downloadCSV("vialseg-movimientos.csv", headers, state.movements.map((m) => [m.createdAt || m.created_at,m.sku,m.itemName || m.item_name,m.type || m.tipo,m.quantity !== undefined ? m.quantity : m.cantidad,m.stockBefore !== undefined ? m.stockBefore : m.stock_antes,m.stockAfter !== undefined ? m.stockAfter : m.stock_despues,m.reference || m.referencia,m.note || m.nota,m.actor]));
+    downloadCSV("vialseg-movimientos.csv", headers, state.movements.map((m) => [m.createdAt || m.created_at,m.sku,m.itemName || m.item_name,m.type || m.tipo,m.quantity !== undefined ? m.quantity : m.cantidad,m.stockBefore !== undefined ? m.stockBefore : m.stock_antes,m.stockAfter !== undefined ? m.stockAfter : m.stock_despues,m.reference || m.referencia,m.note || m.nota,actorLabel(m.actor)]));
   }
   function downloadTemplate() {
     const headers = ["codigo","nombre","categoria","unidad","stock","costo_unitario","consumo_mensual","stock_seguridad","plazo_dias","lote_reposicion","proveedor","ubicacion","se_repone"];
@@ -694,7 +709,7 @@
           const current = itemById(savedItem.id);
           if (!current) throw new Error("Se guardó el material " + sku + ", pero no se pudo recuperar su stock para completar la importación.");
           if (Math.abs(num(current.stock) - physical) > 0.001) {
-            await addMovement({ itemId: savedItem.id, type: "ajuste", quantity: physical, note: "Actualización de stock por importación CSV", reference: "CSV", actor: state.user.email || state.user.name, suppressRender: true });
+            await addMovement({ itemId: savedItem.id, type: "ajuste", quantity: physical, note: "Actualización de stock por importación CSV", reference: "CSV", actor: currentActor() || state.user.name, suppressRender: true });
             changedStock++;
           }
         }
