@@ -3,7 +3,7 @@
 
   const CONFIG = window.VIALSEG_INVENTORY_CONFIG || {};
   const STORAGE_KEY = "vialseg-inventory-demo-v1";
-  const VIEW_NAMES = { overview: "Resumen", items: "Materiales", movements: "Movimientos", replenishment: "Reposición" };
+  const VIEW_NAMES = { overview: "Resumen", items: "Materiales", movements: "Movimientos", reports: "Reportes", replenishment: "Reposición" };
   const ICONS = {
     grid: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
     box: "m12 3 9 5-9 5-9-5 9-5zM3 8v9l9 5 9-5V8M12 13v9",
@@ -26,7 +26,7 @@
     close: "m18 6-12 12M6 6l12 12"
   };
 
-  const state = { mode: null, session: null, user: null, items: [], movements: [], view: "overview", itemSearch: "", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "" };
+  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "" };
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
   const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
@@ -125,28 +125,29 @@
     const key = "vialseg-inventory-session";
     try {
       const saved = localStorage.getItem(key);
-      if (saved) { sessionStorage.removeItem(key); return JSON.parse(saved); }
+      if (saved) { state.rememberSession = true; return JSON.parse(saved); }
       const temporary = sessionStorage.getItem(key);
-      if (temporary) {
-        localStorage.setItem(key, temporary);
-        sessionStorage.removeItem(key);
-        return JSON.parse(temporary);
-      }
-    } catch (_) {}
-    return null;
+      state.rememberSession = false;
+      return temporary ? JSON.parse(temporary) : null;
+    } catch (_) { state.rememberSession = false; return null; }
   }
-  function putSession(s) {
+  function putSession(s, remember) {
     const key = "vialseg-inventory-session";
     state.session = s;
+    if (!s) {
+      state.rememberSession = false;
+      try { localStorage.removeItem(key); } catch (_) {}
+      try { sessionStorage.removeItem(key); } catch (_) {}
+      return;
+    }
+    if (typeof remember === "boolean") state.rememberSession = remember;
+    const value = JSON.stringify(s);
     try {
-      if (s) localStorage.setItem(key, JSON.stringify(s));
-      else localStorage.removeItem(key);
+      localStorage.removeItem(key);
       sessionStorage.removeItem(key);
+      (state.rememberSession ? localStorage : sessionStorage).setItem(key, value);
     } catch (_) {
-      try {
-        if (s) sessionStorage.setItem(key, JSON.stringify(s));
-        else sessionStorage.removeItem(key);
-      } catch (_) {}
+      try { sessionStorage.setItem(key, value); state.rememberSession = false; } catch (_) {}
     }
   }
   async function authRequest(path, body) {
@@ -163,7 +164,7 @@
     if (!session || !session.refresh_token) return false;
     try {
       const data = await authRequest("token?grant_type=refresh_token", { refresh_token: session.refresh_token });
-      putSession({ access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in || 3600) * 1000, user: data.user });
+      putSession({ access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in || 3600) * 1000, user: data.user }, state.rememberSession);
       state.user = data.user;
       return true;
     } catch (_) { putSession(null); return false; }
@@ -266,6 +267,7 @@
     if (view === "overview") return '<button class="button button-outline" data-action="import-csv">' + icon("upload") + ' Importar CSV</button><button class="button button-lime" data-action="new-item">' + icon("plus") + ' Nuevo material</button>';
     if (view === "items") return '<button class="button button-outline" data-action="import-csv">' + icon("upload") + ' Importar CSV</button><button class="button button-outline" data-action="export-items">' + icon("download") + ' Exportar CSV</button><button class="button button-lime" data-action="new-item">' + icon("plus") + ' Nuevo material</button>';
     if (view === "movements") return '<button class="button button-lime" data-action="new-movement">' + icon("plus") + ' Registrar movimiento</button>';
+    if (view === "reports") return '<button class="button button-outline" data-action="export-period-report">' + icon("download") + ' Exportar reporte</button>';
     if (view === "replenishment") return '<button class="button button-outline" data-action="export-replenishment">' + icon("download") + ' Exportar lista</button>';
     return "";
   }
@@ -275,7 +277,7 @@
     $("#breadcrumb-current").textContent = VIEW_NAMES[state.view];
     $("#page-heading").innerHTML = '<div><h1 class="page-title">' + VIEW_NAMES[state.view] + '</h1><p class="page-subtitle">' + viewSubtitle(state.view) + '</p></div><div class="heading-actions">' + headingActions(state.view) + '</div>';
     $("#notice-strip").innerHTML = state.mode === "demo" ? '<div class="demo-banner"><span class="banner-icon">i</span><span><strong>Modo demostración.</strong> Estos datos son ficticios y se guardan únicamente en este navegador.</span><button data-action="open-settings">Ver cómo conectar la base</button></div>' : "";
-    $("#main-content").innerHTML = state.view === "overview" ? renderOverview() : state.view === "items" ? renderItems() : state.view === "movements" ? renderMovements() : renderReplenishment();
+    $("#main-content").innerHTML = state.view === "overview" ? renderOverview() : state.view === "items" ? renderItems() : state.view === "movements" ? renderMovements() : state.view === "reports" ? renderReports() : renderReplenishment();
     $("#footer-date").textContent = new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
     paintIdentity();
   }
@@ -284,6 +286,7 @@
       overview: "Una vista clara de existencias, consumo y necesidades de reposición.",
       items: "Consultá los materiales y sus parámetros de abastecimiento.",
       movements: "Cada entrada, consumo y ajuste deja un registro consultable.",
+      reports: "Consultá ingresos, consumos y ajustes en un período.",
       replenishment: "Revisá qué materiales conviene reponer y por qué."
     }[view] || "";
   }
@@ -397,6 +400,71 @@
       '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="movement-search" class="search-input" value="' + esc(state.movementSearch) + '" placeholder="Buscar material o referencia"></div>' +
       '<select id="movement-type-filter" class="filter-select" aria-label="Filtrar por tipo"><option value="all">Todos los movimientos</option><option value="ingreso"' + (state.movementType === "ingreso" ? " selected" : "") + '>Ingresos</option><option value="consumo"' + (state.movementType === "consumo" ? " selected" : "") + '>Consumos</option><option value="ajuste"' + (state.movementType === "ajuste" ? " selected" : "") + '>Ajustes</option></select></div><div id="movement-table-region">' + renderMovementTable(list, true) + '</div></section>';
   }
+  function dateInputValue(date) {
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 10);
+  }
+  function currentReportPeriod() {
+    const now = new Date();
+    if (!state.reportFrom) state.reportFrom = dateInputValue(new Date(now.getFullYear(), now.getMonth(), 1));
+    if (!state.reportTo) state.reportTo = dateInputValue(now);
+    return { from: state.reportFrom, to: state.reportTo };
+  }
+  function calculatePeriodReport() {
+    const period = currentReportPeriod();
+    const movements = state.movements.filter((movement) => {
+      const date = new Date(movement.createdAt || movement.created_at);
+      if (Number.isNaN(date.getTime())) return false;
+      const day = dateInputValue(date);
+      return day >= period.from && day <= period.to;
+    });
+    const byItem = new Map();
+    movements.forEach((movement) => {
+      const sku = movement.sku || "";
+      const name = movement.itemName || movement.item_name || "Material eliminado";
+      const item = state.items.find((entry) => entry.sku === sku);
+      const key = sku || name;
+      if (!byItem.has(key)) byItem.set(key, { sku: sku, name: name, unit: item ? item.unit : "", entries: 0, consumption: 0, adjustment: 0, count: 0 });
+      const row = byItem.get(key);
+      const type = movement.type || movement.tipo;
+      const amount = num(movement.quantity !== undefined ? movement.quantity : movement.cantidad);
+      row.count++;
+      if (type === "ingreso") row.entries += Math.abs(amount);
+      else if (type === "consumo") row.consumption += Math.abs(amount);
+      else row.adjustment += amount;
+    });
+    const rows = Array.from(byItem.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "es"));
+    return {
+      from: period.from, to: period.to, movements: movements,
+      entries: movements.filter((m) => (m.type || m.tipo) === "ingreso").length,
+      consumptions: movements.filter((m) => (m.type || m.tipo) === "consumo").length,
+      adjustments: movements.filter((m) => (m.type || m.tipo) === "ajuste").length,
+      rows: rows
+    };
+  }
+  function renderReports() {
+    const report = calculatePeriodReport();
+    const periodText = report.from + " a " + report.to;
+    const bodyRows = report.rows.length ? report.rows.map((row) =>
+      '<tr><td><div class="table-item"><span><span class="item-name">' + esc(row.name) + '</span><span class="item-sku">' + esc(row.sku) + '</span></span></div></td>' +
+      '<td>' + esc(row.unit || "—") + '</td><td>' + quantity(row.entries) + '</td><td>' + quantity(row.consumption) + '</td><td>' + (row.adjustment > 0 ? "+" : "") + quantity(row.adjustment) + '</td><td>' + row.count + '</td></tr>'
+    ).join("") : '<tr><td colspan="6"><div class="empty-state"><strong>No hay movimientos en este período</strong>Probá elegir otro rango de fechas.</div></td></tr>';
+    return '<section class="panel report-filter-panel"><div class="panel-head"><div><h2 class="panel-title">Período del reporte</h2><p class="panel-caption">Elegí las fechas que querés consultar.</p></div></div>' +
+      '<div class="report-filter-row"><label class="report-date-field">Desde<input id="report-from" type="date" value="' + esc(report.from) + '"></label><label class="report-date-field">Hasta<input id="report-to" type="date" value="' + esc(report.to) + '"></label><button class="button button-dark" type="button" data-action="apply-report-period">Aplicar período</button></div></section>' +
+      '<div class="kpi-grid report-kpis">' +
+      kpi("MOVIMIENTOS", report.movements.length, periodText, "arrows", "blue") +
+      kpi("INGRESOS", report.entries, "Operaciones de entrada", "upload", "lime") +
+      kpi("CONSUMOS", report.consumptions, "Operaciones de salida", "box", "alert") +
+      kpi("AJUSTES", report.adjustments, "Conteos y correcciones", "settings", "") +
+      '</div><section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Detalle por material <span class="pill-count">' + report.rows.length + '</span></h2><p class="panel-caption">Cantidades del período por unidad de medida.</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>MATERIAL</th><th>UNIDAD</th><th>INGRESOS</th><th>CONSUMOS</th><th>AJUSTE NETO</th><th>MOV.</th></tr></thead><tbody>' + bodyRows + '</tbody></table></div></section>';
+  }
+  function exportPeriodReport() {
+    const report = calculatePeriodReport();
+    const headers = ["codigo","material","unidad","ingresos","consumos","ajuste_neto","movimientos"];
+    const rows = report.rows.map((row) => [row.sku,row.name,row.unit,row.entries,row.consumption,row.adjustment,row.count]);
+    downloadCSV("vialseg-reporte-" + report.from + "_a_" + report.to + ".csv", headers, rows);
+  }
+
   function renderReplenishment() {
     const list = candidates().sort((a, b) => suggestedQuantity(b) - suggestedQuantity(a));
     const totalCritical = criticalItems().length;
@@ -770,7 +838,7 @@
       if (!/^[a-z0-9._-]{3,32}$/.test(username)) throw new Error("El usuario debe tener entre 3 y 32 caracteres: letras, números, punto, guion o guion bajo.");
       const data = await authRequest("token?grant_type=password", { email: authEmailForUsername(username), password: $("#login-password").value });
       const session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in || 3600) * 1000, user: data.user };
-      putSession(session); state.mode = "remote"; state.user = data.user;
+      putSession(session, $("#remember-device").checked); state.mode = "remote"; state.user = data.user;
       await loadRemoteData();
       hide($("#auth-screen")); show($("#app-shell")); render();
     } catch (error) { setAuthError(error.message || "No se pudo ingresar."); }
@@ -782,10 +850,11 @@
     if (!configured()) { showLogin(); return; }
     const session = getSession();
     if (!session) { showLogin(); return; }
-    state.session = session;
-    if (session.expires_at < Date.now() + 30000 && !(await refreshAuth())) { showLogin(); return; }
-    state.user = (state.session || session).user || session.user;
+    const loading = showLoading("Restaurando tu sesión…");
     try {
+      state.session = session;
+      if (session.expires_at < Date.now() + 30000 && !(await refreshAuth())) { showLogin(); return; }
+      state.user = (state.session || session).user || session.user;
       const response = await fetch(CONFIG.supabaseUrl.replace(/\/$/, "") + "/auth/v1/user", { headers: { apikey: CONFIG.supabaseKey, Authorization: "Bearer " + (state.session || session).access_token } });
       if (!response.ok) throw new Error("La sesión expiró.");
       const user = await response.json();
@@ -794,6 +863,7 @@
       await loadRemoteData();
       hide($("#auth-screen")); show($("#app-shell")); render();
     } catch (_) { putSession(null); showLogin(); }
+    finally { loading(); }
   }
 
   async function logout() {
@@ -833,6 +903,12 @@
       else if (action === "import-csv") csvInputClick();
       else if (action === "export-items") exportItems();
       else if (action === "export-movements") exportMovements();
+      else if (action === "export-period-report") exportPeriodReport();
+      else if (action === "apply-report-period") {
+        const from = $("#report-from").value, to = $("#report-to").value;
+        if (from && to && from > to) toast("La fecha inicial no puede ser posterior a la fecha final.", "error");
+        else { state.reportFrom = from; state.reportTo = to; render(); }
+      }
       else if (action === "export-replenishment") {
         const rows = candidates().map((i) => [i.sku,i.name,i.stock,i.unit,reorderPoint(i),suggestedQuantity(i),i.supplier,i.leadDays]);
         downloadCSV("vialseg-reposicion.csv", ["codigo","material","stock_actual","unidad","punto_pedido","cantidad_sugerida","proveedor","plazo_dias"], rows);
