@@ -667,13 +667,14 @@
           replenish: /^(no|false|0)$/i.test(cell(col.replenish, existing ? (existing.replenish ? "si" : "no") : "si")) ? false : true,
           active: true, updatedAt: new Date().toISOString()
         };
-        await persistItem(item, !existing, 0);
+        const savedItem = await persistItem(item, !existing, 0);
         if (!existing) created++; else updated++;
         if (col.stock >= 0 && row[col.stock] !== undefined && row[col.stock].trim() !== "") {
           const physical = parseNum(row[col.stock]);
-          const current = itemById(item.id);
+          const current = itemById(savedItem.id);
+          if (!current) throw new Error("Se guardó el material " + sku + ", pero no se pudo recuperar su stock para completar la importación.");
           if (Math.abs(num(current.stock) - physical) > 0.001) {
-            await addMovement({ itemId: item.id, type: "ajuste", quantity: physical, note: "Actualización de stock por importación CSV", reference: "CSV", actor: state.user.email || state.user.name, suppressRender: true });
+            await addMovement({ itemId: savedItem.id, type: "ajuste", quantity: physical, note: "Actualización de stock por importación CSV", reference: "CSV", actor: state.user.email || state.user.name, suppressRender: true });
             changedStock++;
           }
         }
