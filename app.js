@@ -388,7 +388,7 @@
     let list = activeItems();
     const q = state.itemSearch.toLowerCase().trim();
     if (q) list = list.filter((i) => String(i.name || "").toLowerCase().includes(q));
-    if (state.itemLocation !== "all") list = list.filter((i) => String(i.location || "").toLowerCase() === state.itemLocation.toLowerCase());
+    if (state.itemLocation !== "all") { const selectedLocation = String(state.itemLocation || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es"); list = list.filter((i) => String(i.location || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es") === selectedLocation); }
     const codeQuery = state.itemCodeSearch.toLowerCase().trim();
     if (codeQuery) list = list.filter((i) => String(i.sku || "").toLowerCase().includes(codeQuery));
     if (state.itemCategory !== "all") list = list.filter((i) => String(i.category || "General").toLowerCase() === state.itemCategory.toLowerCase());
