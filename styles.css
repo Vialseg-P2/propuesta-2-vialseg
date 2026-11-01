@@ -236,3 +236,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 .stock-change{display:block;margin-top:3px;color:#98a3b2;font-size:8px;font-weight:500}
+
+.login-form .remember-device{display:flex;align-items:center;gap:8px;margin:3px 0 8px;color:#526175;font-size:11px;font-weight:600;cursor:pointer}
+.login-form .remember-device input{width:15px;height:15px;margin:0;padding:0;accent-color:var(--lime)}
+.report-filter-panel{margin-bottom:15px}
+.report-filter-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;padding:0 16px 16px}
+.report-date-field{display:grid;gap:5px;color:#667085;font-size:10px;font-weight:700}
+.report-date-field input{height:38px;min-width:150px;padding:0 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font:inherit}
+.report-kpis{margin-bottom:15px}
+@media(max-width:640px){.report-filter-row{align-items:stretch}.report-date-field,.report-date-field input{width:100%}.report-filter-row .button{width:100%}}
