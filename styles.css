@@ -245,3 +245,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .report-date-field input{height:38px;min-width:150px;padding:0 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font:inherit}
 .report-kpis{margin-bottom:15px}
 @media(max-width:640px){.report-filter-row{align-items:stretch}.report-date-field,.report-date-field input{width:100%}.report-filter-row .button{width:100%}}
+
+/* Transiciones suaves entre pantallas y secciones */
+@keyframes auth-exit{to{opacity:0;transform:translateY(-8px)}}
+@keyframes auth-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes app-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes app-exit{to{opacity:0;transform:translateY(8px)}}
+@keyframes content-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.auth-screen.auth-exit{animation:auth-exit .22s ease-in both}
+.auth-screen.auth-enter{animation:auth-enter .32s cubic-bezier(.2,.75,.25,1) both}
+.app-shell.app-enter{animation:app-enter .42s cubic-bezier(.2,.75,.25,1) both}
+.app-shell.app-exit{animation:app-exit .18s ease-in both}
+#main-content.content-enter{animation:content-enter .3s cubic-bezier(.2,.75,.25,1) both}
+.panel,.kpi-card,.metric-card,.data-table tbody tr,.mode-chip,.icon-button,.table-action,.filter-select,.search-input{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease}
+@media(prefers-reduced-motion:reduce){
+  .auth-screen.auth-exit,.auth-screen.auth-enter,.app-shell.app-enter,.app-shell.app-exit,#main-content.content-enter{animation:none!important}
+  .panel,.kpi-card,.metric-card,.data-table tbody tr,.mode-chip,.icon-button,.table-action,.filter-select,.search-input{transition:none!important}
+}
