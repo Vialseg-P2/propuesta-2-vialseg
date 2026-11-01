@@ -1,6 +1,6 @@
 -- Reemplaza el historial de movimientos por la simulación 2026.
 -- Conserva el catálogo existente y alinea sus stocks con el saldo final de este registro.
--- Deben existir los 39 códigos MAT-001 a MAT-039 antes de ejecutar.
+-- Completa materiales faltantes del catálogo sin reemplazar los que ya existen.
 
 begin;
 
