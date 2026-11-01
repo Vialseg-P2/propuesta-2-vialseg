@@ -26,7 +26,7 @@
     close: "m18 6-12 12M6 6l12 12"
   };
 
-  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "" };
+  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "" };
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
   const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
@@ -349,6 +349,7 @@
     let list = activeItems();
     const q = state.itemSearch.toLowerCase().trim();
     if (q) list = list.filter((i) => (i.name + " " + i.sku + " " + i.category + " " + i.supplier).toLowerCase().includes(q));
+    if (state.itemCategory !== "all") list = list.filter((i) => String(i.category || "General").toLowerCase() === state.itemCategory.toLowerCase());
     if (state.itemClass !== "all") {
       const abc = withAbc(activeItems());
       list = list.filter((i) => abc[i.id] === state.itemClass);
@@ -363,6 +364,7 @@
     const list = filteredItems();
     return '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Catálogo de materiales <span class="pill-count" id="item-result-count">' + list.length + '</span></h2><p class="panel-caption">El stock se modifica desde Movimientos para conservar el historial.</p></div><button class="text-link" data-action="download-template">Descargar plantilla CSV vacía</button></div>' +
       '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="item-search" class="search-input" value="' + esc(state.itemSearch) + '" placeholder="Buscar por nombre, código o proveedor"></div>' +
+      '<select id="item-category-filter" class="filter-select" aria-label="Filtrar por categoría"><option value="all">Todas las categorías</option>' + Array.from(new Set(activeItems().map((item) => String(item.category || "General").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "es")).map((category) => '<option value="' + esc(category) + '"' + (state.itemCategory.toLowerCase() === category.toLowerCase() ? " selected" : "") + '>' + esc(category) + '</option>').join("") + '</select>' +
       '<select id="item-class-filter" class="filter-select" aria-label="Filtrar por clase ABC"><option value="all">Todas las clases</option><option value="A"' + (state.itemClass === "A" ? " selected" : "") + '>Clase A</option><option value="B"' + (state.itemClass === "B" ? " selected" : "") + '>Clase B</option><option value="C"' + (state.itemClass === "C" ? " selected" : "") + '>Clase C</option></select>' +
       '<select id="item-status-filter" class="filter-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="critical"' + (state.itemStatus === "critical" ? " selected" : "") + '>Crítico</option><option value="low"' + (state.itemStatus === "low" ? " selected" : "") + '>Bajo</option><option value="ok"' + (state.itemStatus === "ok" ? " selected" : "") + '>En nivel</option><option value="non"' + (state.itemStatus === "non" ? " selected" : "") + '>Sin reposición</option></select></div>' +
       '<div id="item-table-region">' + renderItemTable(list, true) + '</div></section>';
@@ -928,6 +930,7 @@
   document.addEventListener("click", (e) => { onClick(e).catch((error) => toast(error.message || "Ocurrió un error.", "error")); });
   document.addEventListener("input", onSearchInput);
   document.addEventListener("change", (e) => {
+    if (e.target.id === "item-category-filter") { state.itemCategory = e.target.value; render(); }
     if (e.target.id === "item-class-filter") { state.itemClass = e.target.value; render(); }
     if (e.target.id === "item-status-filter") { state.itemStatus = e.target.value; render(); }
     if (e.target.id === "movement-type-filter") { state.movementType = e.target.value; render(); }
