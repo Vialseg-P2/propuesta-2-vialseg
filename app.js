@@ -511,7 +511,7 @@
   function costChart(points, field, title, currency, color) {
     const values = points.map((p) => num(p[field])).filter((v) => v > 0);
     if (!values.length) return '<section class="panel cost-chart"><div class="panel-head"><div><h2 class="panel-title">' + title + '</h2><p class="panel-caption">Precio unitario registrado en cada ingreso.</p></div></div><div class="empty-state"><strong>Sin precios registrados</strong>Los nuevos ingresos aparecerán en este gráfico.</div></section>';
-    const width = 680, height = 260, left = 62, right = 58, top = 18, bottom = 42;
+    const width = 680, height = 260, left = 62, right = 96, top = 18, bottom = 42;
     const min = Math.min(...values), max = Math.max(...values), span = max - min || Math.max(1, max * 0.1);
     const xy = points.map((p, i) => {
       const x = points.length === 1 ? width / 2 : left + i * (width - left - right) / (points.length - 1);
@@ -524,7 +524,8 @@
       const value = max - ratio * span;
       return '<line x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '" stroke="#e8edf2"/><text x="' + (left-8) + '" y="' + (y+4) + '" text-anchor="end" fill="#8793a4" font-size="11">' + esc(currency(value)) + '</text>';
     }).join("");
-    const start = shortDate(points[0].created_at || points[0].createdAt), end = shortDate(points[points.length-1].created_at || points[points.length-1].createdAt);
+    const chartDate = (value) => { const d = new Date(value); if (Number.isNaN(d.getTime())) return "—"; const parts = new Intl.DateTimeFormat("es-AR", { month: "short", year: "numeric" }).formatToParts(d); const month = parts.find((part) => part.type === "month").value.replace(".", "").toUpperCase(); const year = parts.find((part) => part.type === "year").value; return month + " " + year; };
+    const start = chartDate(points[0].created_at || points[0].createdAt), end = chartDate(points[points.length-1].created_at || points[points.length-1].createdAt);
     return '<section class="panel cost-chart"><div class="panel-head"><div><h2 class="panel-title">' + title + '</h2><p class="panel-caption">' + points.length + ' ingresos con precio registrado</p></div></div><div class="chart-scroll"><svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + esc(title) + '">' + ticks + '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' + xy.map((p,i) => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" fill="' + color + '"><title>' + esc(shortDate(points[i].created_at || points[i].createdAt) + " · " + currency(points[i][field])) + '</title></circle>').join("") + '<text x="' + left + '" y="' + (height-10) + '" fill="#8793a4" font-size="11">' + esc(start) + '</text><text x="' + (width-right) + '" y="' + (height-10) + '" text-anchor="end" fill="#8793a4" font-size="11">' + esc(end) + '</text></svg></div></section>';
   }
   function renderCostAnalysis() {
