@@ -309,12 +309,10 @@
   }
   function viewSubtitle(view) {
     return {
-      overview: "Una vista clara de existencias, consumo y necesidades de reposición.",
       items: "Consultá los materiales y sus parámetros de abastecimiento.",
-      movements: "Cada entrada, consumo y ajuste deja un registro consultable.",
       reports: "Consultá ingresos, consumos y ajustes en un período.",
       costs: "Compará la evolución del precio de compra en pesos y dólares.",
-      replenishment: "Revisá qué materiales conviene reponer y por qué."
+      replenishment: "Revisá qué materiales conviene reponer."
     }[view] || "";
   }
 
@@ -493,14 +491,14 @@
       '<tr><td><div class="table-item"><span><span class="item-name">' + esc(row.name) + '</span><span class="item-sku">' + esc(row.sku) + '</span></span></div></td>' +
       '<td>' + esc(row.unit || "—") + '</td><td>' + quantity(row.entries) + '</td><td>' + quantity(row.consumption) + '</td><td>' + row.count + '</td></tr>'
     ).join("") : '<tr><td colspan="5"><div class="empty-state"><strong>No hay movimientos en este período</strong>Probá elegir otro rango de fechas.</div></td></tr>';
-    return '<section class="panel report-filter-panel"><div class="panel-head"><div><h2 class="panel-title">Período del reporte</h2><p class="panel-caption">Por defecto se muestran los últimos 30 días; podés cambiar el rango.</p></div></div>' +
+    return '<section class="panel report-filter-panel"><div class="panel-head"><div><h2 class="panel-title">Período del reporte</h2></div></div>' +
       '<div class="report-filter-row"><label class="report-date-field">Desde<input id="report-from" type="date" value="' + esc(report.from) + '"></label><label class="report-date-field">Hasta<input id="report-to" type="date" value="' + esc(report.to) + '"></label><button class="button button-dark" type="button" data-action="apply-report-period">Aplicar período</button></div></section>' +
       '<div class="kpi-grid report-kpis">' +
       kpi("MOVIMIENTOS", report.movements.length, periodText, "arrows", "blue") +
       kpi("INGRESOS", report.entries, "Operaciones de entrada", "upload", "lime") +
       kpi("CONSUMOS", report.consumptions, "Operaciones de salida", "box", "alert") +
       kpi("AJUSTES", report.adjustments, "Conteos y correcciones", "settings", "") +
-      '</div><section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Detalle por material <span class="pill-count">' + report.rows.length + '</span></h2><p class="panel-caption">Cantidades del período por unidad de medida.</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>MATERIAL</th><th>UNIDAD</th><th>INGRESOS</th><th>CONSUMOS</th><th>MOV.</th></tr></thead><tbody>' + bodyRows + '</tbody></table></div></section>';
+      '</div><section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Detalle por material <span class="pill-count">' + report.rows.length + '</span></h2></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>MATERIAL</th><th>UNIDAD</th><th>INGRESOS</th><th>CONSUMOS</th><th>MOV.</th></tr></thead><tbody>' + bodyRows + '</tbody></table></div></section>';
   }
   function exportPeriodReport() {
     const report = calculatePeriodReport();
@@ -538,7 +536,7 @@
     const options = "";
     const points = state.mode === "demo" ? state.movements.filter((m) => String(m.itemId) === String(selected.id) && m.type === "ingreso" && num(m.unitCostArs) > 0).sort((a,b) => new Date(a.createdAt)-new Date(b.createdAt)) : state.priceHistoryData;
     const ars = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(num(v));
-    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde al precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<div class="material-picker"><input id="price-history-item" type="search" value="' + esc(selected.sku + " · " + selected.name) + '" placeholder="Buscar por nombre o código" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="price-history-results" aria-expanded="false"><div id="price-history-results" class="material-suggestions" role="listbox" hidden></div></div></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
+    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde a un precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<div class="material-picker"><input id="price-history-item" type="search" value="' + esc(selected.sku + " · " + selected.name) + '" placeholder="Buscar por nombre o código" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="price-history-results" aria-expanded="false"><div id="price-history-results" class="material-suggestions" role="listbox" hidden></div></div></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
       '<div class="cost-chart-grid">' + costChart(points, "unitCostArs", "Precio unitario en ARS", ars, "#0795b8") + costChart(points, "unitCostUsd", "Precio unitario en USD", moneyUSD, "#79bd32") + '</div>' +
       '<p class="cost-note">El equivalente en USD se calcula con la cotización vendedora del dólar blue guardada para cada ingreso.</p>';
   }
@@ -559,8 +557,7 @@
     return '<div class="replenishment-summary"><article class="summary-card"><span>Materiales para reponer</span><strong>' + list.length + '</strong></article><article class="summary-card"><span>Bajo stock de seguridad</span><strong>' + totalCritical + '</strong></article><article class="summary-card"><span>Sin reposición y bajo umbral</span><strong>' + noRestock.length + '</strong></article></div>' +
       (noRestock.length ? '<section class="panel" style="margin-bottom:15px"><div class="panel-head"><div><h2 class="panel-title">Materiales sin reposición</h2><p class="panel-caption">Se muestran para seguimiento; el sistema no sugiere una compra automática.</p></div></div><div class="attention-list">' + noRestock.map((item) => '<div class="attention-row"><span class="attention-icon amber">' + icon("alert") + '</span><div class="attention-copy"><strong>' + esc(item.name) + '</strong><small>' + esc(item.sku) + ' · Definir alternativa de abastecimiento</small></div><div class="attention-stock">' + quantity(item.stock) + ' ' + esc(item.unit) + '<small>stock actual</small></div></div>').join("") + '</div></section>' : '') +
       '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Sugerencias de reposición</h2><p class="panel-caption">El punto de pedido incorpora stock de seguridad, consumo promedio y plazo del proveedor.</p></div></div>' +
-      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(suggestedQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Lote sugerido</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>') +
-      '</section><p class="panel-caption" style="margin:12px 3px 0">La sugerencia es orientativa. Confirmá cantidades y condiciones con el proveedor antes de emitir una compra.</p>';
+      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(suggestedQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Lote sugerido</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
   }
 
   function toast(message, type) {
@@ -702,7 +699,7 @@
       '<h3 class="panel-title" style="margin:16px 0 7px">Punto de reposición</h3><p class="panel-caption">Stock de seguridad + consumo mensual / 30 × plazo del proveedor en días.</p>' +
       '<h3 class="panel-title" style="margin:16px 0 7px">Cantidad sugerida</h3><p class="panel-caption">Busca cubrir el punto de reposición y un lote adicional, redondeando al múltiplo del lote configurado.</p>' +
       '<h3 class="panel-title" style="margin:16px 0 7px">Clasificación ABC</h3><p class="panel-caption">Valor anual de consumo (unidades mensuales × 12 × costo unitario): clase A hasta el 80% acumulado, B hasta el 95% y C para el resto.</p>' +
-      '<div class="form-info" style="margin-top:16px">Estos criterios son una base inicial para validar con Vialseg. En demostración, los datos se guardan solo en este navegador. Para compartirlos entre personas hace falta configurar la base Supabase siguiendo la guía del repositorio.</div>';
+      '<div class="form-info" style="margin-top:16px">Estos criterios son una base inicial para validar con Vialseg.</div>';
     openModal("Criterios y configuración", "Reglas de cálculo visibles para revisar antes de usar el sistema.", body, '<footer class="modal-foot"><button class="button button-dark" type="button" data-close-modal>Cerrar</button></footer>', false);
   }
 
