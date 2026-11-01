@@ -1,40 +1,40 @@
 codigo,nombre,categoria,unidad,stock,costo_unitario,consumo_mensual,stock_seguridad,plazo_dias,lote_reposicion,proveedor,ubicacion,se_repone,fecha_operacion_referencial,tipo_ultimo_movimiento_referencial,cantidad_ultimo_movimiento_referencial
-MAT-001,Fusible industrial,Electricidad,u,80,760,28,20,4,50,Componentes Industriales,Deposito - Estante B,si,2026-10-18,consumo,6
-MAT-002,Lampara de senalizacion LED,Electricidad,u,24,5400,12,10,8,12,Metalúrgica del Centro,Deposito - Estante C,si,2026-10-14,consumo,2
+MAT-001,Fusible industrial,Electricidad,u,80,760,28,20,4,50,Electroinsumos Viales,Deposito - Estante B,si,2026-10-18,consumo,6
+MAT-002,Lampara de senalizacion LED,Electricidad,u,24,5400,12,10,8,12,Electroinsumos Viales,Deposito - Estante C,si,2026-10-14,consumo,2
 MAT-003,Guantes de proteccion,Seguridad,par,45,6200,18,15,5,20,Seguridad Laboral,Deposito - Estante D,si,2026-10-10,ingreso,20
-MAT-004,Chaleco reflectivo,Seguridad,u,16,14800,9,8,10,10,Indumentaria Técnica,Deposito - Estante E,si,2026-10-06,ajuste,1
-MAT-005,Soporte galvanizado para cartel,Mecanica,u,19,9200,10,8,12,10,Tecnología de Tránsito,Deposito - Estante F,si,2026-10-02,ingreso,10
-MAT-006,Conector estanco,Electricidad,u,7,3200,5,8,9,10,Equipamiento Vial,Deposito - Cajon 1,si,2026-09-28,consumo,1
-MAT-007,Sensor de velocidad,Electronica,u,3,46800,7,5,22,5,Señalización y Reflectivos,Deposito - Patio,si,2026-09-24,consumo,1
-MAT-008,Cono vial 70 cm,Senalizacion,u,38,18500,14,12,6,12,Electroinsumos Viales,Deposito - Estante A,si,2026-09-20,ingreso,12
-MAT-009,Cinta reflectiva roja y blanca,Senalizacion,rollo,11,22400,5,4,8,6,Componentes Industriales,Deposito - Estante B,si,2026-09-16,ajuste,1
-MAT-010,Cartel desvio transitorio,Senalizacion,u,9,38500,3,3,14,4,Metalúrgica del Centro,Deposito - Estante C,si,2026-09-12,ingreso,4
-MAT-011,Tacha reflectiva vial,Senalizacion,u,145,2800,65,50,10,100,Seguridad Laboral,Deposito - Estante D,si,2026-09-08,consumo,13
-MAT-012,Delineador flexible,Senalizacion,u,18,31200,8,6,12,10,Indumentaria Técnica,Deposito - Estante E,si,2026-09-04,consumo,1
-MAT-013,Lamina reflectiva grado ingenieria,Senalizacion,m2,22,42800,9,8,18,10,Tecnología de Tránsito,Deposito - Estante F,si,2026-08-31,ingreso,10
-MAT-014,Casco de seguridad,Seguridad,u,12,19800,4,4,7,6,Equipamiento Vial,Deposito - Cajon 1,si,2026-08-27,ajuste,1
-MAT-015,Anteojos de seguridad,Seguridad,u,21,8900,8,6,5,12,Señalización y Reflectivos,Deposito - Patio,si,2026-08-23,ingreso,12
-MAT-016,Botines de seguridad,Seguridad,par,8,68400,3,3,10,4,Electroinsumos Viales,Deposito - Estante A,si,2026-08-19,consumo,1
-MAT-017,Protector auditivo,Seguridad,u,17,7400,6,5,6,10,Componentes Industriales,Deposito - Estante B,si,2026-08-15,consumo,1
-MAT-018,Tablero de control vial,Electronica,u,4,186000,2,2,25,2,Metalúrgica del Centro,Deposito - Estante C,si,2026-08-11,ingreso,2
-MAT-019,Modulo controlador de semaforo,Electronica,u,2,325000,1,1,30,1,Seguridad Laboral,Deposito - Estante D,si,2026-08-07,ajuste,1
-MAT-020,Fuente de alimentacion 24V,Electronica,u,6,36500,3,3,12,4,Indumentaria Técnica,Deposito - Estante E,si,2026-08-03,ingreso,4
-MAT-021,Bornera de conexion,Electricidad,u,64,1250,24,20,5,50,Tecnología de Tránsito,Deposito - Estante F,si,2026-07-30,consumo,5
-MAT-022,Cable subterraneo multipolar,Electricidad,m,86,6200,38,25,12,50,Equipamiento Vial,Deposito - Cajon 1,si,2026-07-26,consumo,5
-MAT-023,Caja estanca para conexiones,Electricidad,u,14,9700,7,6,8,10,Señalización y Reflectivos,Deposito - Patio,si,2026-07-22,ingreso,10
+MAT-004,Chaleco reflectivo,Seguridad,u,16,14800,9,8,10,10,Seguridad Laboral,Deposito - Estante E,si,2026-10-06,ajuste,1
+MAT-005,Soporte galvanizado para cartel,Mecanica,u,19,9200,10,8,12,10,Metalúrgica del Centro,Deposito - Estante F,si,2026-10-02,ingreso,10
+MAT-006,Conector estanco,Electricidad,u,7,3200,5,8,9,10,Electroinsumos Viales,Deposito - Cajon 1,si,2026-09-28,consumo,1
+MAT-007,Sensor de velocidad,Electronica,u,3,46800,7,5,22,5,Tecnología de Tránsito,Deposito - Patio,si,2026-09-24,consumo,1
+MAT-008,Cono vial 70 cm,Senalizacion,u,38,18500,14,12,6,12,Señalización y Reflectivos,Deposito - Estante A,si,2026-09-20,ingreso,12
+MAT-009,Cinta reflectiva roja y blanca,Senalizacion,rollo,11,22400,5,4,8,6,Señalización y Reflectivos,Deposito - Estante B,si,2026-09-16,ajuste,1
+MAT-010,Cartel desvio transitorio,Senalizacion,u,9,38500,3,3,14,4,Señalización y Reflectivos,Deposito - Estante C,si,2026-09-12,ingreso,4
+MAT-011,Tacha reflectiva vial,Senalizacion,u,145,2800,65,50,10,100,Señalización y Reflectivos,Deposito - Estante D,si,2026-09-08,consumo,13
+MAT-012,Delineador flexible,Senalizacion,u,18,31200,8,6,12,10,Señalización y Reflectivos,Deposito - Estante E,si,2026-09-04,consumo,1
+MAT-013,Lamina reflectiva grado ingenieria,Senalizacion,m2,22,42800,9,8,18,10,Señalización y Reflectivos,Deposito - Estante F,si,2026-08-31,ingreso,10
+MAT-014,Casco de seguridad,Seguridad,u,12,19800,4,4,7,6,Seguridad Laboral,Deposito - Cajon 1,si,2026-08-27,ajuste,1
+MAT-015,Anteojos de seguridad,Seguridad,u,21,8900,8,6,5,12,Seguridad Laboral,Deposito - Patio,si,2026-08-23,ingreso,12
+MAT-016,Botines de seguridad,Seguridad,par,8,68400,3,3,10,4,Seguridad Laboral,Deposito - Estante A,si,2026-08-19,consumo,1
+MAT-017,Protector auditivo,Seguridad,u,17,7400,6,5,6,10,Seguridad Laboral,Deposito - Estante B,si,2026-08-15,consumo,1
+MAT-018,Tablero de control vial,Electronica,u,4,186000,2,2,25,2,Tecnología de Tránsito,Deposito - Estante C,si,2026-08-11,ingreso,2
+MAT-019,Modulo controlador de semaforo,Electronica,u,2,325000,1,1,30,1,Tecnología de Tránsito,Deposito - Estante D,si,2026-08-07,ajuste,1
+MAT-020,Fuente de alimentacion 24V,Electronica,u,6,36500,3,3,12,4,Tecnología de Tránsito,Deposito - Estante E,si,2026-08-03,ingreso,4
+MAT-021,Bornera de conexion,Electricidad,u,64,1250,24,20,5,50,Electroinsumos Viales,Deposito - Estante F,si,2026-07-30,consumo,5
+MAT-022,Cable subterraneo multipolar,Electricidad,m,86,6200,38,25,12,50,Electroinsumos Viales,Deposito - Cajon 1,si,2026-07-26,consumo,5
+MAT-023,Caja estanca para conexiones,Electricidad,u,14,9700,7,6,8,10,Electroinsumos Viales,Deposito - Patio,si,2026-07-22,ingreso,10
 MAT-024,Prensaestopa industrial,Electricidad,u,32,2300,13,10,6,20,Electroinsumos Viales,Deposito - Estante A,si,2026-07-18,ajuste,1
-MAT-025,Pintura vial amarilla,Senalizacion,balde,13,58200,6,5,9,8,Componentes Industriales,Deposito - Estante B,si,2026-07-14,ingreso,8
-MAT-026,Pintura vial blanca,Senalizacion,balde,10,55400,5,4,9,8,Metalúrgica del Centro,Deposito - Estante C,si,2026-07-10,consumo,1
-MAT-027,Microesferas de vidrio,Senalizacion,bolsa,26,21800,12,10,11,20,Seguridad Laboral,Deposito - Estante D,si,2026-07-06,consumo,2
-MAT-028,Cartel reglamentario metalico,Senalizacion,u,7,74800,3,3,16,4,Indumentaria Técnica,Deposito - Estante E,si,2026-07-02,ingreso,4
-MAT-029,Poste galvanizado,Senalizacion,u,11,63500,5,4,18,6,Tecnología de Tránsito,Deposito - Estante F,si,2026-06-28,ajuste,1
-MAT-030,Abrazadera para poste,Mecanica,u,57,1850,22,18,7,40,Equipamiento Vial,Deposito - Cajon 1,si,2026-06-24,ingreso,40
-MAT-031,Tornillo galvanizado,Mecanica,u,260,180,95,80,5,200,Señalización y Reflectivos,Deposito - Patio,si,2026-06-20,consumo,19
-MAT-032,Tuerca autofrenante,Mecanica,u,185,240,70,60,5,150,Electroinsumos Viales,Deposito - Estante A,si,2026-06-16,consumo,9
-MAT-033,Arandela plana galvanizada,Mecanica,u,310,95,120,100,5,250,Componentes Industriales,Deposito - Estante B,si,2026-06-12,ingreso,250
-MAT-034,Disco de corte para amoladora,Herramientas,u,27,2850,11,10,4,20,Metalúrgica del Centro,Deposito - Estante C,si,2026-06-08,ajuste,1
-MAT-035,Mecha para metal,Herramientas,u,18,4600,7,6,6,12,Seguridad Laboral,Deposito - Estante D,si,2026-06-04,ingreso,12
-MAT-036,Precinto UV reforzado,Herramientas,bolsa,33,3850,14,12,4,25,Indumentaria Técnica,Deposito - Estante E,si,2026-05-31,consumo,3
-MAT-037,Cinta aisladora,Herramientas,rollo,41,1850,16,12,3,30,Tecnología de Tránsito,Deposito - Estante F,si,2026-05-27,consumo,2
-MAT-038,Bornera para tablero de semaforo,Electricidad,u,23,3850,9,8,8,15,Equipamiento Vial,Deposito - Cajon 1,si,2026-05-23,ingreso,15
-MAT-039,Protector facial,Seguridad,u,9,15800,4,4,7,6,Señalización y Reflectivos,Deposito - Patio,si,2026-05-19,ajuste,1
+MAT-025,Pintura vial amarilla,Senalizacion,balde,13,58200,6,5,9,8,Señalización y Reflectivos,Deposito - Estante B,si,2026-07-14,ingreso,8
+MAT-026,Pintura vial blanca,Senalizacion,balde,10,55400,5,4,9,8,Señalización y Reflectivos,Deposito - Estante C,si,2026-07-10,consumo,1
+MAT-027,Microesferas de vidrio,Senalizacion,bolsa,26,21800,12,10,11,20,Señalización y Reflectivos,Deposito - Estante D,si,2026-07-06,consumo,2
+MAT-028,Cartel reglamentario metalico,Senalizacion,u,7,74800,3,3,16,4,Señalización y Reflectivos,Deposito - Estante E,si,2026-07-02,ingreso,4
+MAT-029,Poste galvanizado,Senalizacion,u,11,63500,5,4,18,6,Señalización y Reflectivos,Deposito - Estante F,si,2026-06-28,ajuste,1
+MAT-030,Abrazadera para poste,Mecanica,u,57,1850,22,18,7,40,Metalúrgica del Centro,Deposito - Cajon 1,si,2026-06-24,ingreso,40
+MAT-031,Tornillo galvanizado,Mecanica,u,260,180,95,80,5,200,Metalúrgica del Centro,Deposito - Patio,si,2026-06-20,consumo,19
+MAT-032,Tuerca autofrenante,Mecanica,u,185,240,70,60,5,150,Metalúrgica del Centro,Deposito - Estante A,si,2026-06-16,consumo,9
+MAT-033,Arandela plana galvanizada,Mecanica,u,310,95,120,100,5,250,Metalúrgica del Centro,Deposito - Estante B,si,2026-06-12,ingreso,250
+MAT-034,Disco de corte para amoladora,Herramientas,u,27,2850,11,10,4,20,Herramientas Industriales,Deposito - Estante C,si,2026-06-08,ajuste,1
+MAT-035,Mecha para metal,Herramientas,u,18,4600,7,6,6,12,Herramientas Industriales,Deposito - Estante D,si,2026-06-04,ingreso,12
+MAT-036,Precinto UV reforzado,Herramientas,bolsa,33,3850,14,12,4,25,Herramientas Industriales,Deposito - Estante E,si,2026-05-31,consumo,3
+MAT-037,Cinta aisladora,Herramientas,rollo,41,1850,16,12,3,30,Herramientas Industriales,Deposito - Estante F,si,2026-05-27,consumo,2
+MAT-038,Bornera para tablero de semaforo,Electricidad,u,23,3850,9,8,8,15,Electroinsumos Viales,Deposito - Cajon 1,si,2026-05-23,ingreso,15
+MAT-039,Protector facial,Seguridad,u,9,15800,4,4,7,6,Seguridad Laboral,Deposito - Patio,si,2026-05-19,ajuste,1
