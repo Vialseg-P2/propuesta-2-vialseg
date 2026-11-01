@@ -473,7 +473,13 @@
     if (isNew) {
       if (num(initialStock) > 0) payload.stock = 0;
       rows = await api("inventory_items?select=*", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
-      const saved = itemFromRow(rows[0]);
+      let savedRow = Array.isArray(rows) ? rows[0] : null;
+      if (!savedRow) {
+        const matches = await api("inventory_items?select=*&sku=eq." + encodeURIComponent(item.sku) + "&limit=1");
+        savedRow = Array.isArray(matches) ? matches[0] : null;
+      }
+      if (!savedRow) throw new Error("Supabase no devolvió el material guardado. Revisá la conexión y los permisos de lectura de inventory_items.");
+      const saved = itemFromRow(savedRow);
       state.items.push(saved);
       if (num(initialStock) > 0) await addMovement({ itemId: saved.id, type: "ajuste", quantity: num(initialStock), note: "Stock inicial del alta", reference: "ALTA", actor: state.user.email, suppressRender: true });
       return saved;
