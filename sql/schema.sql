@@ -220,3 +220,5 @@ $$;
 
 revoke all on function public.registrar_movimiento(uuid, text, numeric, text, text, text, numeric, numeric, numeric, timestamptz, text) from public, anon;
 grant execute on function public.registrar_movimiento(uuid, text, numeric, text, text, text, numeric, numeric, numeric, timestamptz, text) to authenticated;
+
+notify pgrst, 'reload schema';
