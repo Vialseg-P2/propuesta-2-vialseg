@@ -595,7 +595,7 @@
   function field(label, inputHtml) { return '<div class="field"><label>' + label + '</label>' + inputHtml + '</div>'; }
 
   function showMovementModal(id, kind) {
-    const items = activeItems();
+    const items = activeItems().slice().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
     if (!items.length) { toast("Primero agregá un material al catálogo.", "error"); return; }
     const selected = id ? itemById(id) : items[0];
     const options = items.map((item) => '<option value="' + esc(item.id) + '"' + (selected && String(item.id) === String(selected.id) ? " selected" : "") + '>' + esc(item.sku + " · " + item.name + " (stock: " + quantity(item.stock) + ")") + '</option>').join("");
