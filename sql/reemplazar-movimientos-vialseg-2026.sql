@@ -4,6 +4,50 @@
 
 begin;
 
+insert into public.inventory_items
+  (sku, nombre, categoria, unidad, stock, costo_unitario, consumo_mensual, stock_seguridad, plazo_dias, lote_reposicion, proveedor, ubicacion, se_repone, activo)
+values
+  ('MAT-001', 'Fusible industrial', 'Electricidad', 'u', 80::numeric, 760::numeric, 28::numeric, 20::numeric, 4::integer, 50::numeric, 'Electroinsumos Viales', 'Deposito - Estante B', true, true),
+  ('MAT-002', 'Lampara de senalizacion LED', 'Electricidad', 'u', 24::numeric, 5400::numeric, 12::numeric, 10::numeric, 8::integer, 12::numeric, 'Electroinsumos Viales', 'Deposito - Estante C', true, true),
+  ('MAT-003', 'Guantes de proteccion', 'Seguridad', 'par', 45::numeric, 6200::numeric, 18::numeric, 15::numeric, 5::integer, 20::numeric, 'Seguridad Laboral', 'Deposito - Estante D', true, true),
+  ('MAT-004', 'Chaleco reflectivo', 'Seguridad', 'u', 16::numeric, 14800::numeric, 9::numeric, 8::numeric, 10::integer, 10::numeric, 'Seguridad Laboral', 'Deposito - Estante E', true, true),
+  ('MAT-005', 'Soporte galvanizado para cartel', 'Mecanica', 'u', 19::numeric, 9200::numeric, 10::numeric, 8::numeric, 12::integer, 10::numeric, 'Metalúrgica del Centro', 'Deposito - Estante F', true, true),
+  ('MAT-006', 'Conector estanco', 'Electricidad', 'u', 7::numeric, 3200::numeric, 5::numeric, 8::numeric, 9::integer, 10::numeric, 'Electroinsumos Viales', 'Deposito - Cajon 1', true, true),
+  ('MAT-007', 'Sensor de velocidad', 'Electronica', 'u', 3::numeric, 46800::numeric, 7::numeric, 5::numeric, 22::integer, 5::numeric, 'Tecnología de Tránsito', 'Deposito - Patio', true, true),
+  ('MAT-008', 'Cono vial 70 cm', 'Senalizacion', 'u', 38::numeric, 18500::numeric, 14::numeric, 12::numeric, 6::integer, 12::numeric, 'Señalización y Reflectivos', 'Deposito - Estante A', true, true),
+  ('MAT-009', 'Cinta reflectiva roja y blanca', 'Senalizacion', 'rollo', 11::numeric, 22400::numeric, 5::numeric, 4::numeric, 8::integer, 6::numeric, 'Señalización y Reflectivos', 'Deposito - Estante B', true, true),
+  ('MAT-010', 'Cartel desvio transitorio', 'Senalizacion', 'u', 9::numeric, 38500::numeric, 3::numeric, 3::numeric, 14::integer, 4::numeric, 'Señalización y Reflectivos', 'Deposito - Estante C', true, true),
+  ('MAT-011', 'Tacha reflectiva vial', 'Senalizacion', 'u', 145::numeric, 2800::numeric, 65::numeric, 50::numeric, 10::integer, 100::numeric, 'Señalización y Reflectivos', 'Deposito - Estante D', true, true),
+  ('MAT-012', 'Delineador flexible', 'Senalizacion', 'u', 18::numeric, 31200::numeric, 8::numeric, 6::numeric, 12::integer, 10::numeric, 'Señalización y Reflectivos', 'Deposito - Estante E', true, true),
+  ('MAT-013', 'Lamina reflectiva grado ingenieria', 'Senalizacion', 'm2', 22::numeric, 42800::numeric, 9::numeric, 8::numeric, 18::integer, 10::numeric, 'Señalización y Reflectivos', 'Deposito - Estante F', true, true),
+  ('MAT-014', 'Casco de seguridad', 'Seguridad', 'u', 12::numeric, 19800::numeric, 4::numeric, 4::numeric, 7::integer, 6::numeric, 'Seguridad Laboral', 'Deposito - Cajon 1', true, true),
+  ('MAT-015', 'Anteojos de seguridad', 'Seguridad', 'u', 21::numeric, 8900::numeric, 8::numeric, 6::numeric, 5::integer, 12::numeric, 'Seguridad Laboral', 'Deposito - Patio', true, true),
+  ('MAT-016', 'Botines de seguridad', 'Seguridad', 'par', 8::numeric, 68400::numeric, 3::numeric, 3::numeric, 10::integer, 4::numeric, 'Seguridad Laboral', 'Deposito - Estante A', true, true),
+  ('MAT-017', 'Protector auditivo', 'Seguridad', 'u', 17::numeric, 7400::numeric, 6::numeric, 5::numeric, 6::integer, 10::numeric, 'Seguridad Laboral', 'Deposito - Estante B', true, true),
+  ('MAT-018', 'Tablero de control vial', 'Electronica', 'u', 4::numeric, 186000::numeric, 2::numeric, 2::numeric, 25::integer, 2::numeric, 'Tecnología de Tránsito', 'Deposito - Estante C', true, true),
+  ('MAT-019', 'Modulo controlador de semaforo', 'Electronica', 'u', 2::numeric, 325000::numeric, 1::numeric, 1::numeric, 30::integer, 1::numeric, 'Tecnología de Tránsito', 'Deposito - Estante D', true, true),
+  ('MAT-020', 'Fuente de alimentacion 24V', 'Electronica', 'u', 6::numeric, 36500::numeric, 3::numeric, 3::numeric, 12::integer, 4::numeric, 'Tecnología de Tránsito', 'Deposito - Estante E', true, true),
+  ('MAT-021', 'Bornera de conexion', 'Electricidad', 'u', 64::numeric, 1250::numeric, 24::numeric, 20::numeric, 5::integer, 50::numeric, 'Electroinsumos Viales', 'Deposito - Estante F', true, true),
+  ('MAT-022', 'Cable subterraneo multipolar', 'Electricidad', 'm', 86::numeric, 6200::numeric, 38::numeric, 25::numeric, 12::integer, 50::numeric, 'Electroinsumos Viales', 'Deposito - Cajon 1', true, true),
+  ('MAT-023', 'Caja estanca para conexiones', 'Electricidad', 'u', 14::numeric, 9700::numeric, 7::numeric, 6::numeric, 8::integer, 10::numeric, 'Electroinsumos Viales', 'Deposito - Patio', true, true),
+  ('MAT-024', 'Prensaestopa industrial', 'Electricidad', 'u', 32::numeric, 2300::numeric, 13::numeric, 10::numeric, 6::integer, 20::numeric, 'Electroinsumos Viales', 'Deposito - Estante A', true, true),
+  ('MAT-025', 'Pintura vial amarilla', 'Senalizacion', 'balde', 13::numeric, 58200::numeric, 6::numeric, 5::numeric, 9::integer, 8::numeric, 'Señalización y Reflectivos', 'Deposito - Estante B', true, true),
+  ('MAT-026', 'Pintura vial blanca', 'Senalizacion', 'balde', 10::numeric, 55400::numeric, 5::numeric, 4::numeric, 9::integer, 8::numeric, 'Señalización y Reflectivos', 'Deposito - Estante C', true, true),
+  ('MAT-027', 'Microesferas de vidrio', 'Senalizacion', 'bolsa', 26::numeric, 21800::numeric, 12::numeric, 10::numeric, 11::integer, 20::numeric, 'Señalización y Reflectivos', 'Deposito - Estante D', true, true),
+  ('MAT-028', 'Cartel reglamentario metalico', 'Senalizacion', 'u', 7::numeric, 74800::numeric, 3::numeric, 3::numeric, 16::integer, 4::numeric, 'Señalización y Reflectivos', 'Deposito - Estante E', true, true),
+  ('MAT-029', 'Poste galvanizado', 'Senalizacion', 'u', 11::numeric, 63500::numeric, 5::numeric, 4::numeric, 18::integer, 6::numeric, 'Señalización y Reflectivos', 'Deposito - Estante F', true, true),
+  ('MAT-030', 'Abrazadera para poste', 'Mecanica', 'u', 57::numeric, 1850::numeric, 22::numeric, 18::numeric, 7::integer, 40::numeric, 'Metalúrgica del Centro', 'Deposito - Cajon 1', true, true),
+  ('MAT-031', 'Tornillo galvanizado', 'Mecanica', 'u', 260::numeric, 180::numeric, 95::numeric, 80::numeric, 5::integer, 200::numeric, 'Metalúrgica del Centro', 'Deposito - Patio', true, true),
+  ('MAT-032', 'Tuerca autofrenante', 'Mecanica', 'u', 185::numeric, 240::numeric, 70::numeric, 60::numeric, 5::integer, 150::numeric, 'Metalúrgica del Centro', 'Deposito - Estante A', true, true),
+  ('MAT-033', 'Arandela plana galvanizada', 'Mecanica', 'u', 310::numeric, 95::numeric, 120::numeric, 100::numeric, 5::integer, 250::numeric, 'Metalúrgica del Centro', 'Deposito - Estante B', true, true),
+  ('MAT-034', 'Disco de corte para amoladora', 'Herramientas', 'u', 27::numeric, 2850::numeric, 11::numeric, 10::numeric, 4::integer, 20::numeric, 'Herramientas Industriales', 'Deposito - Estante C', true, true),
+  ('MAT-035', 'Mecha para metal', 'Herramientas', 'u', 18::numeric, 4600::numeric, 7::numeric, 6::numeric, 6::integer, 12::numeric, 'Herramientas Industriales', 'Deposito - Estante D', true, true),
+  ('MAT-036', 'Precinto UV reforzado', 'Herramientas', 'bolsa', 33::numeric, 3850::numeric, 14::numeric, 12::numeric, 4::integer, 25::numeric, 'Herramientas Industriales', 'Deposito - Estante E', true, true),
+  ('MAT-037', 'Cinta aisladora', 'Herramientas', 'rollo', 41::numeric, 1850::numeric, 16::numeric, 12::numeric, 3::integer, 30::numeric, 'Herramientas Industriales', 'Deposito - Estante F', true, true),
+  ('MAT-038', 'Bornera para tablero de semaforo', 'Electricidad', 'u', 23::numeric, 3850::numeric, 9::numeric, 8::numeric, 8::integer, 15::numeric, 'Electroinsumos Viales', 'Deposito - Cajon 1', true, true),
+  ('MAT-039', 'Protector facial', 'Seguridad', 'u', 9::numeric, 15800::numeric, 4::numeric, 4::numeric, 7::integer, 6::numeric, 'Seguridad Laboral', 'Deposito - Patio', true, true)
+on conflict (sku) do nothing;
+
 do $$
 declare
   missing_codes text;
