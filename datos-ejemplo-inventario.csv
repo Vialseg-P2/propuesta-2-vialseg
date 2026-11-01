@@ -1,0 +1,9 @@
+codigo,nombre,categoria,unidad,stock,costo_unitario,consumo_mensual,stock_seguridad,plazo_dias,lote_reposicion,proveedor,ubicacion,se_repone
+MUESTRA-EL-001,EJEMPLO - Cable tipo taller,Electricidad,m,120,1850,55,30,7,25,Proveedor Ficticio A,Deposito - Estante A,si
+MUESTRA-EL-002,EJEMPLO - Fusible industrial,Electricidad,u,80,760,28,20,4,50,Proveedor Ficticio B,Deposito - Cajon 1,si
+MUESTRA-EL-003,EJEMPLO - Lampara de senalizacion,Electricidad,u,24,5400,12,10,8,12,Proveedor Ficticio A,Deposito - Estante B,si
+MUESTRA-EQ-001,EJEMPLO - Guantes de proteccion,Seguridad,par,45,6200,18,15,5,20,Proveedor Ficticio D,Deposito - Estante C,si
+MUESTRA-EQ-002,EJEMPLO - Chaleco reflectivo,Seguridad,u,16,14800,9,8,10,10,Proveedor Ficticio E,Deposito - Estante C,si
+MUESTRA-ME-001,EJEMPLO - Soporte de montaje,Mecanica,u,19,9200,10,8,12,10,Proveedor Ficticio C,Deposito - Estante D,si
+MUESTRA-EL-004,EJEMPLO - Conector estanco,Electricidad,u,7,3200,5,8,9,10,Proveedor Ficticio A,Deposito - Estante B,no
+MUESTRA-EL-005,EJEMPLO - Sensor de velocidad,Electronica,u,3,46800,7,5,22,5,Proveedor Ficticio F,Deposito - Estante A,si
