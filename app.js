@@ -32,7 +32,7 @@
   const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
   const num = (v) => Number.isFinite(Number(v)) ? Number(v) : 0;
   const money = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(num(v));
-  const moneyUSD = (v) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(num(v));
+  const moneyUSD = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(num(v));
   const quantity = (v) => new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(num(v));
   const shortDate = (v) => {
     const d = new Date(v);
