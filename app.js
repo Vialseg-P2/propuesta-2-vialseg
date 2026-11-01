@@ -873,6 +873,7 @@
       const username = val("login-username").trim().toLowerCase();
       if (!/^[a-z0-9._-]{3,32}$/.test(username)) throw new Error("El usuario debe tener entre 3 y 32 caracteres: letras, números, punto, guion o guion bajo.");
       const data = await authRequest("token?grant_type=password", { email: authEmailForUsername(username), password: $("#login-password").value });
+      $("#login-password").value = "";
       const session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in || 3600) * 1000, user: data.user };
       putSession(session, $("#remember-device").checked); state.mode = "remote"; state.user = data.user;
       await loadRemoteData();
