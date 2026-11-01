@@ -364,7 +364,7 @@
   }
   function renderItems() {
     const list = filteredItems();
-    return '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Catálogo de materiales <span class="pill-count" id="item-result-count">' + list.length + '</span></h2><p class="panel-caption">El stock se modifica desde Movimientos para conservar el historial.</p></div><button class="text-link" data-action="download-template">Descargar plantilla CSV</button></div>' +
+    return '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Catálogo de materiales <span class="pill-count" id="item-result-count">' + list.length + '</span></h2><p class="panel-caption">El stock se modifica desde Movimientos para conservar el historial.</p></div><button class="text-link" data-action="download-template">Descargar plantilla CSV vacía</button></div>' +
       '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="item-search" class="search-input" value="' + esc(state.itemSearch) + '" placeholder="Buscar por nombre, código o proveedor"></div>' +
       '<select id="item-class-filter" class="filter-select" aria-label="Filtrar por clase ABC"><option value="all">Todas las clases</option><option value="A"' + (state.itemClass === "A" ? " selected" : "") + '>Clase A</option><option value="B"' + (state.itemClass === "B" ? " selected" : "") + '>Clase B</option><option value="C"' + (state.itemClass === "C" ? " selected" : "") + '>Clase C</option></select>' +
       '<select id="item-status-filter" class="filter-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="critical"' + (state.itemStatus === "critical" ? " selected" : "") + '>Crítico</option><option value="low"' + (state.itemStatus === "low" ? " selected" : "") + '>Bajo</option><option value="ok"' + (state.itemStatus === "ok" ? " selected" : "") + '>En nivel</option><option value="non"' + (state.itemStatus === "non" ? " selected" : "") + '>Sin reposición</option></select></div>' +
@@ -718,7 +718,7 @@
   }
   function downloadTemplate() {
     const headers = ["codigo","nombre","categoria","unidad","stock","costo_unitario","consumo_mensual","stock_seguridad","plazo_dias","lote_reposicion","proveedor","ubicacion","se_repone"];
-    downloadCSV("plantilla-inventario-vialseg.csv", headers, [["","Material de ejemplo","General","u","0","0","0","0","0","1","","","si"]]);
+    downloadCSV("plantilla-inventario-vialseg.csv", headers, []);
   }
   function parseCSV(text) {
     const source = text.replace(/^\uFEFF/, "");
