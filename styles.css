@@ -262,3 +262,5 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .auth-screen.auth-exit,.auth-screen.auth-enter,.app-shell.app-enter,.app-shell.app-exit,#main-content.content-enter{animation:none!important}
   .panel,.kpi-card,.metric-card,.data-table tbody tr,.mode-chip,.icon-button,.table-action,.filter-select,.search-input{transition:none!important}
 }
+
+.auth-visual-bottom{justify-content:flex-end}
