@@ -16,7 +16,8 @@
       <div id="auth-error" class="alert-error" hidden></div>
       <form id="login-form" class="login-form">
         <label for="login-username">Usuario</label><input id="login-username" name="username" type="text" autocomplete="username" autocapitalize="none"  required>
-        <label for="login-password">Contraseña</label><input id="login-password" name="password" type="password" autocomplete="current-password"  required>
+        <label for="login-password">Contraseña</label><input id="login-password" name="password" type="password" autocomplete="current-password" required>
+        <label class="remember-device"><input id="remember-device" type="checkbox"><span>Recordar este dispositivo</span></label>
         <button class="button button-dark button-full" type="submit">Ingresar <span aria-hidden="true">↗</span></button>
       </form>
       <div id="auth-config-note" class="auth-note" hidden>La conexión a la base compartida todavía no está configurada. Podés explorar la versión de demostración.</div>
@@ -42,6 +43,7 @@
         <button class="nav-item active" data-view="overview"><span class="nav-icon" data-icon="grid"></span><span>Resumen</span></button>
         <button class="nav-item" data-view="items"><span class="nav-icon" data-icon="box"></span><span>Materiales</span><span class="nav-count" id="nav-items-count">0</span></button>
         <button class="nav-item" data-view="movements"><span class="nav-icon" data-icon="arrows"></span><span>Movimientos</span></button>
+        <button class="nav-item" data-view="reports"><span class="nav-icon" aria-hidden="true">📊</span><span>Reportes</span></button>
         <button class="nav-item" data-view="replenishment"><span class="nav-icon" data-icon="bell"></span><span>Reposición</span><span class="nav-alert" id="nav-replenishment-count">0</span></button>
       </nav>
       <div class="sidebar-bottom">
