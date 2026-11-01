@@ -26,7 +26,7 @@
     close: "m18 6-12 12M6 6l12 12"
   };
 
-  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCodeSearch: "", itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "", priceHistoryItem: "", priceHistoryData: [] };
+  const state = { mode: null, session: null, user: null, rememberSession: false, items: [], movements: [], view: "overview", itemSearch: "", itemCodeSearch: "", itemLocationSearch: "", itemLocationSearchEnabled: false, itemCategory: "all", itemClass: "all", itemStatus: "all", movementType: "all", movementSearch: "", reportFrom: "", reportTo: "", priceHistoryItem: "", priceHistoryData: [] };
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
   const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
@@ -387,7 +387,9 @@
   function filteredItems() {
     let list = activeItems();
     const q = state.itemSearch.toLowerCase().trim();
-    if (q) list = list.filter((i) => (i.name + " " + i.category + " " + i.supplier + " " + (i.location || "")).toLowerCase().includes(q));
+    if (q) list = list.filter((i) => String(i.name || "").toLowerCase().includes(q));
+    const locationQuery = state.itemLocationSearchEnabled ? state.itemLocationSearch.toLowerCase().trim() : "";
+    if (locationQuery) list = list.filter((i) => String(i.location || "").toLowerCase().includes(locationQuery));
     const codeQuery = state.itemCodeSearch.toLowerCase().trim();
     if (codeQuery) list = list.filter((i) => String(i.sku || "").toLowerCase().includes(codeQuery));
     if (state.itemCategory !== "all") list = list.filter((i) => String(i.category || "General").toLowerCase() === state.itemCategory.toLowerCase());
@@ -404,7 +406,7 @@
   function renderItems() {
     const list = filteredItems();
     return '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Catálogo de materiales <span class="pill-count" id="item-result-count">' + list.length + '</span></h2><p class="panel-caption">El stock se modifica desde Movimientos para conservar el historial.</p></div></div>' +
-      '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="item-search" class="search-input" value="' + esc(state.itemSearch) + '" placeholder="Buscar por nombre, proveedor o ubicación"></div><div class="search-wrap"><span class="search-icon">#</span><input id="item-code-search" class="search-input" value="' + esc(state.itemCodeSearch) + '" placeholder="Buscar por código"></div>' +
+      '<div class="table-toolbar"><div class="search-wrap"><span class="search-icon">' + icon("search") + '</span><input id="item-search" class="search-input" value="' + esc(state.itemSearch) + '" placeholder="Buscar por nombre"></div><label class="location-filter-toggle"><input id="item-location-toggle" type="checkbox"' + (state.itemLocationSearchEnabled ? " checked" : "") + '><span>Buscar por ubicación</span></label>' + (state.itemLocationSearchEnabled ? '<div class="search-wrap"><span class="search-icon">⌖</span><input id="item-location-search" class="search-input" value="' + esc(state.itemLocationSearch) + '" placeholder="Buscar por ubicación"></div>' : '') + '<div class="search-wrap"><span class="search-icon">#</span><input id="item-code-search" class="search-input" value="' + esc(state.itemCodeSearch) + '" placeholder="Buscar por código"></div>' +
       '<select id="item-category-filter" class="filter-select" aria-label="Filtrar por categoría"><option value="all">Todas las categorías</option>' + Array.from(new Set(activeItems().map((item) => String(item.category || "General").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "es")).map((category) => '<option value="' + esc(category) + '"' + (state.itemCategory.toLowerCase() === category.toLowerCase() ? " selected" : "") + '>' + esc(category) + '</option>').join("") + '</select>' +
       '<select id="item-class-filter" class="filter-select" aria-label="Filtrar por clase ABC"><option value="all">Todas las clases</option><option value="A"' + (state.itemClass === "A" ? " selected" : "") + '>Clase A</option><option value="B"' + (state.itemClass === "B" ? " selected" : "") + '>Clase B</option><option value="C"' + (state.itemClass === "C" ? " selected" : "") + '>Clase C</option></select>' +
       '<select id="item-status-filter" class="filter-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="critical"' + (state.itemStatus === "critical" ? " selected" : "") + '>Crítico</option><option value="low"' + (state.itemStatus === "low" ? " selected" : "") + '>Bajo</option><option value="ok"' + (state.itemStatus === "ok" ? " selected" : "") + '>En nivel</option><option value="non"' + (state.itemStatus === "non" ? " selected" : "") + '>Sin reposición</option></select></div>' +
@@ -1116,6 +1118,12 @@
       if (region) region.innerHTML = renderItemTable(filteredItems(), true);
       const count = $("#item-result-count"); if (count) count.textContent = filteredItems().length;
     }
+    if (e.target.id === "item-location-search") {
+      state.itemLocationSearch = e.target.value;
+      const region = $("#item-table-region");
+      if (region) region.innerHTML = renderItemTable(filteredItems(), true);
+      const count = $("#item-result-count"); if (count) count.textContent = filteredItems().length;
+    }
     if (e.target.id === "item-code-search") {
       state.itemCodeSearch = e.target.value;
       const region = $("#item-table-region");
@@ -1193,6 +1201,7 @@
     }
   });
   document.addEventListener("change", (e) => {
+    if (e.target.id === "item-location-toggle") { state.itemLocationSearchEnabled = e.target.checked; if (!state.itemLocationSearchEnabled) state.itemLocationSearch = ""; render(); }
     if (e.target.id === "item-category-filter") { state.itemCategory = e.target.value; render(); }
     if (e.target.id === "item-class-filter") { state.itemClass = e.target.value; render(); }
     if (e.target.id === "item-status-filter") { state.itemStatus = e.target.value; render(); }
