@@ -321,9 +321,18 @@
   function kpi(label, value, foot, iconName, tone) {
     return '<article class="kpi-card"><div class="kpi-top"><span class="kpi-label">' + label + '</span><span class="kpi-icon ' + (tone || "") + '">' + icon(iconName) + '</span></div><div class="kpi-value">' + value + '</div><div class="kpi-foot">' + foot + '</div></article>';
   }
+  function lastPurchaseCostUsd(item) {
+    const itemId = String(item.id);
+    const lastPricedIncome = state.movements
+      .filter((movement) => String(movement.itemId || movement.item_id) === itemId && (movement.type || movement.tipo) === "ingreso" && num(movement.unitCostUsd || movement.precio_unitario_usd) > 0)
+      .sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0))[0];
+    if (lastPricedIncome) return num(lastPricedIncome.unitCostUsd || lastPricedIncome.precio_unitario_usd);
+    const ars = num(item.unitCost), rate = num(item.quoteRate);
+    return ars > 0 && rate > 0 ? ars / rate : 0;
+  }
   function renderOverview() {
     const items = activeItems();
-    const value = items.reduce((sum, item) => sum + num(item.stock) * num(item.avgCostUsd), 0);
+    const value = items.reduce((sum, item) => sum + num(item.stock) * lastPurchaseCostUsd(item), 0);
     const noRestock = items.filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
     const abc = withAbc(items);
     const counts = ["A", "B", "C"].map((key) => ({ key: key, count: Object.values(abc).filter((x) => x === key).length }));
@@ -331,7 +340,7 @@
     const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999)).slice(0, 5);
     return '<div class="kpi-grid">' +
       kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
-      kpi("VALOR DEL STOCK", moneyUSD(value), "Costo promedio de compra", "coin", "lime") +
+      kpi("VALOR DEL STOCK", moneyUSD(value), "Valuado al último precio pagado", "coin", "lime") +
       kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
       kpi("SUGERENCIAS DE REPOSICIÓN", candidates().length, "Según consumo y plazo de entrega", "bell", "") +
       '</div><div class="content-grid">' +
