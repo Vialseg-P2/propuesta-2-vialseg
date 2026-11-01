@@ -264,3 +264,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 
 .auth-visual-bottom{justify-content:flex-end}
+
+.cost-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.cost-chart{min-width:0;overflow:hidden}
+.chart-scroll{overflow-x:auto;padding:0 12px 12px}
+.chart-scroll svg{display:block;width:100%;min-width:480px;height:auto}
+.cost-filter{margin-bottom:14px}
+.cost-current{display:grid;gap:4px;margin-left:auto;color:#8490a2;font-size:10px}
+.cost-current strong{color:#243047;font-size:14px}
+.cost-note{margin:8px 2px 0;color:#8490a2;font-size:10px}
+.field-hint{display:block;margin-top:5px;color:#8490a2;font-size:10px;line-height:1.45}
+.report-date-field select{height:38px;min-width:min(420px,70vw);padding:0 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font:inherit}
+@media(max-width:900px){.cost-chart-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.report-date-field select{width:100%;min-width:0}.cost-current{margin-left:0}}
