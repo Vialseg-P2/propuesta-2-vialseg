@@ -15,7 +15,7 @@ Sin esas variables, la aplicación permite entrar en modo demostración con dato
 ## Preparar Supabase para uso compartido
 
 1. Crear un proyecto Supabase separado del que se use para recorridos.
-2. Ejecutar `sql/schema.sql` desde **SQL Editor**. Si la base ya estaba creada, ejecutar `sql/migracion-costos-compra-usd.sql`.
+2. Ejecutar `sql/schema.sql` desde **SQL Editor**. Si la base ya estaba creada, ejecutar `sql/migracion-costos-compra-usd.sql` si todavía no se aplicó. Para habilitar la edición de referencias y detalles de movimientos, ejecutar también `sql/migracion-edicion-movimientos.sql`.
 3. Desactivar el registro público en **Authentication** y crear las cuentas autorizadas.
 4. Incorporar cada cuenta a `public.inventory_members` con el rol `admin` o `deposito`.
 
@@ -24,6 +24,10 @@ Sin esas variables, la aplicación permite entrar en modo demostración con dato
 La pantalla pide un nombre de usuario. Para autenticarlo con Supabase, la aplicación lo convierte internamente en una dirección de correo de inicio de sesión: `usuario1` corresponde a `usuario1@vialseg-inventario.example.com`. Creá la cuenta desde **Authentication → Users** con esa dirección y una contraseña segura; no hace falta que exista una casilla de correo. Repetí el patrón para cada usuario y habilitalos en `inventory_members`. La aplicación no permite registrarse públicamente.
 
 La clave publicable/anon puede usarse en el navegador porque las políticas RLS del esquema restringen el acceso. Nunca usar una clave `service_role` en esta página.
+
+### Edición del historial
+
+En el historial se pueden corregir la referencia y el detalle de un movimiento. La cantidad, el tipo y los saldos se conservan para no alterar el historial de stock. La referencia es un dato opcional que identifica un comprobante asociado, por ejemplo una orden de compra (OC), orden de trabajo (OT), factura o ticket.
 
 ## Cálculos incluidos
 

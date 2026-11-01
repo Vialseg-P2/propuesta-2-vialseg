@@ -411,7 +411,7 @@
       '<div id="item-table-region">' + renderItemTable(list, true) + '</div></section>';
   }
   function renderMovementTable(movements, actions) {
-    return '<div class="table-scroll"><table class="data-table"><thead><tr><th>FECHA</th><th>MATERIAL</th><th>TIPO</th><th>CANTIDAD</th><th>REFERENCIA</th><th>RESPONSABLE</th></tr></thead><tbody>' +
+    return '<div class="table-scroll"><table class="data-table"><thead><tr><th>FECHA</th><th>MATERIAL</th><th>TIPO</th><th>CANTIDAD</th><th>REFERENCIA</th><th>RESPONSABLE</th>' + (actions ? '<th></th>' : '') + '</tr></thead><tbody>' +
       (movements.length ? movements.map((m) => {
         const type = m.type || m.tipo;
         const qty = num(m.quantity !== undefined ? m.quantity : m.cantidad);
@@ -423,8 +423,8 @@
         const actor = actorLabel(m.actor || "");
         const iconText = type === "ingreso" ? "↑" : type === "consumo" ? "↓" : "↔";
         const label = type === "ingreso" ? "Ingreso" : type === "consumo" ? "Consumo" : "Ajuste";
-        return '<tr><td>' + shortDate(date) + '</td><td><div class="table-item"><span class="mov-icon ' + esc(type) + '">' + iconText + '</span><span><span class="item-name">' + esc(itemName) + '</span><span class="item-sku">' + esc(sku) + (note ? " · " + esc(note) : "") + '</span></span></div></td><td><span class="badge plain ' + (type === "ingreso" ? "ok" : type === "consumo" ? "critical" : "neutral") + '">' + label + '</span></td><td class="mov-qty ' + (qty > 0 ? "positive" : qty < 0 ? "negative" : "") + '">' + (qty > 0 ? "+" : "") + quantity(qty) + '<small class="stock-change">' + quantity(m.stockBefore !== undefined ? m.stockBefore : m.stock_antes) + ' → ' + quantity(m.stockAfter !== undefined ? m.stockAfter : m.stock_despues) + '</small></td><td>' + (ref ? esc(ref) : '<span class="muted">—</span>') + '</td><td>' + (actor ? esc(actor) : '<span class="muted">—</span>') + '</td></tr>';
-      }).join("") : '<tr><td colspan="6"><div class="empty-state"><strong>Todavía no hay movimientos</strong>Registrá una entrada, un consumo o un ajuste para iniciar la trazabilidad.</div></td></tr>') +
+        return '<tr><td>' + shortDate(date) + '</td><td><div class="table-item"><span class="mov-icon ' + esc(type) + '">' + iconText + '</span><span><span class="item-name">' + esc(itemName) + '</span><span class="item-sku">' + esc(sku) + (note ? " · " + esc(note) : "") + '</span></span></div></td><td><span class="badge plain ' + (type === "ingreso" ? "ok" : type === "consumo" ? "critical" : "neutral") + '">' + label + '</span></td><td class="mov-qty ' + (qty > 0 ? "positive" : qty < 0 ? "negative" : "") + '">' + (qty > 0 ? "+" : "") + quantity(qty) + '<small class="stock-change">' + quantity(m.stockBefore !== undefined ? m.stockBefore : m.stock_antes) + ' → ' + quantity(m.stockAfter !== undefined ? m.stockAfter : m.stock_despues) + '</small></td><td>' + (ref ? esc(ref) : '<span class="muted">—</span>') + '</td><td>' + (actor ? esc(actor) : '<span class="muted">—</span>') + '</td>' + (actions ? '<td><div class="actions-cell"><button class="table-action icon-only" aria-label="Editar movimiento" data-action="edit-movement" data-id="' + esc(m.id) + '"><span aria-hidden="true">✏️</span></button></div></td>' : '') + '</tr>';
+      }).join("") : '<tr><td colspan="' + (actions ? 7 : 6) + '><div class="empty-state"><strong>Todavía no hay movimientos</strong>Registrá una entrada, un consumo o un ajuste para iniciar la trazabilidad.</div></td></tr>') +
       '</tbody></table></div>';
   }
   function filteredMovements() {
@@ -615,11 +615,24 @@
       field("Tipo de movimiento", '<select id="m-type">' + typeOptions + '</select>') +
       field('<span id="m-quantity-label">Cantidad</span>', '<input id="m-quantity" type="number" min="0" step="0.01" required placeholder="0">') +
       '<div class="field full" id="m-unit-cost-field" hidden><label for="m-unit-cost-ars">Precio pagado por unidad (ARS)</label><input id="m-unit-cost-ars" type="number" min="0.01" step="0.01" placeholder="0,00"><small id="m-blue-quote-note" class="field-hint">Se convertirá a USD con el dólar blue vendedor al registrar el ingreso.</small></div>' +
-      field("Referencia", '<input id="m-reference" maxlength="80" placeholder="Orden de trabajo, compra…">') +
+      field("Referencia (opcional)", '<input id="m-reference" maxlength="80" placeholder="N.º de OC, OT, factura o ticket"><small>Identifica el comprobante relacionado; no se completa automáticamente.</small>') +
       '<div class="field full">' + '<label for="m-note">Motivo o detalle</label><textarea id="m-note" required maxlength="300" placeholder="Dejá una nota breve para mantener la trazabilidad"></textarea></div>' +
       '<div class="field full"><div class="form-info" id="movement-help"></div></div></div></form>';
     openModal("Registrar movimiento", "El cambio de stock quedará asociado a una fecha y responsable.", body, modalFoot("Guardar movimiento", "movement-form"), false);
     updateMovementHelp();
+  }
+  function showEditMovementModal(id) {
+    const movement = state.movements.find((entry) => String(entry.id) === String(id));
+    if (!movement) { toast("No se encontró el movimiento.", "error"); return; }
+    const reference = movement.reference || movement.referencia || "";
+    const note = movement.note || movement.nota || "";
+    const body = '<form id="edit-movement-form"><div class="form-grid">' +
+      field("Referencia", '<input id="edit-movement-reference" maxlength="80" value="' + esc(reference) + '" placeholder="OC, OT, factura o comprobante">') +
+      '<div class="field full"><label for="edit-movement-note">Motivo o detalle</label><textarea id="edit-movement-note" required maxlength="300">' + esc(note) + '</textarea></div>' +
+      '<div class="field full"><div class="form-info">Desde aquí podés corregir la referencia y el detalle. El tipo, la cantidad y el stock registrado se conservan.</div></div>' +
+      '</div></form>';
+    openModal("Editar movimiento", "Corregí los datos de referencia del registro.", body, modalFoot("Guardar cambios", "edit-movement-form"), false);
+    $("#edit-movement-form").dataset.id = movement.id;
   }
   function renderMovementItemSuggestions(query) {
     const results = $("#m-item-results");
@@ -803,6 +816,30 @@
       render();
       toast(values.isNew ? "Material agregado al inventario." : "Cambios guardados.");
     } catch (error) { toast(error.message || "No se pudo guardar el material.", "error"); }
+    finally { loading(); }
+  }
+  async function submitEditMovementForm(form) {
+    const movementId = form.dataset.id;
+    const note = val("edit-movement-note").trim();
+    const reference = val("edit-movement-reference").trim();
+    if (!note) { toast("Ingresá el motivo o detalle del movimiento.", "error"); return; }
+    const loading = showLoading("Guardando cambios…");
+    try {
+      const movement = state.movements.find((entry) => String(entry.id) === String(movementId));
+      if (!movement) throw new Error("No se encontró el movimiento.");
+      if (state.mode === "demo") {
+        movement.note = note;
+        movement.reference = reference;
+        persistDemo();
+      } else {
+        await api("rpc/editar_datos_movimiento", { method: "POST", body: JSON.stringify({ p_movimiento_id: movementId, p_nota: note, p_referencia: reference }) });
+        movement.note = note;
+        movement.reference = reference;
+      }
+      closeModal();
+      render();
+      toast("Referencia y detalle actualizados.");
+    } catch (error) { toast(error.message || "No se pudo editar el movimiento.", "error"); }
     finally { loading(); }
   }
   async function submitMovementForm() {
@@ -1082,6 +1119,7 @@
       else if (action === "edit-item") showItemModal(id);
       else if (action === "delete-item") await deleteItem(id);
       else if (action === "new-movement") showMovementModal(id, kind);
+      else if (action === "edit-movement") showEditMovementModal(id);
       else if (action === "import-csv") csvInputClick();
       else if (action === "export-items") exportItems();
       else if (action === "export-movements") exportMovements();
@@ -1132,6 +1170,7 @@
     if (e.target.id === "login-form") { await login(e); return; }
     if (e.target.id === "item-form") { e.preventDefault(); await submitItemForm(e.target); return; }
     if (e.target.id === "movement-form") { e.preventDefault(); await submitMovementForm(); return; }
+    if (e.target.id === "edit-movement-form") { e.preventDefault(); await submitEditMovementForm(e.target); return; }
   });
   window.addEventListener("hashchange", () => {
     const view = location.hash.replace("#", "");
