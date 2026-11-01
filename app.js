@@ -124,31 +124,28 @@
   function getSession() {
     const key = "vialseg-inventory-session";
     try {
+      sessionStorage.removeItem(key);
       const saved = localStorage.getItem(key);
-      if (saved) { state.rememberSession = true; return JSON.parse(saved); }
-      const temporary = sessionStorage.getItem(key);
-      state.rememberSession = false;
-      return temporary ? JSON.parse(temporary) : null;
+      state.rememberSession = Boolean(saved);
+      return saved ? JSON.parse(saved) : null;
     } catch (_) { state.rememberSession = false; return null; }
   }
   function putSession(s, remember) {
     const key = "vialseg-inventory-session";
     state.session = s;
+    try { sessionStorage.removeItem(key); } catch (_) {}
     if (!s) {
       state.rememberSession = false;
       try { localStorage.removeItem(key); } catch (_) {}
-      try { sessionStorage.removeItem(key); } catch (_) {}
       return;
     }
     if (typeof remember === "boolean") state.rememberSession = remember;
-    const value = JSON.stringify(s);
-    try {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-      (state.rememberSession ? localStorage : sessionStorage).setItem(key, value);
-    } catch (_) {
-      try { sessionStorage.setItem(key, value); state.rememberSession = false; } catch (_) {}
+    if (!state.rememberSession) {
+      try { localStorage.removeItem(key); } catch (_) {}
+      return;
     }
+    try { localStorage.setItem(key, JSON.stringify(s)); }
+    catch (_) { state.rememberSession = false; try { localStorage.removeItem(key); } catch (_) {} }
   }
   async function authRequest(path, body) {
     const response = await fetch(CONFIG.supabaseUrl.replace(/\/$/, "") + "/auth/v1/" + path, {
