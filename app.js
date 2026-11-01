@@ -47,7 +47,7 @@
   const hide = (el) => { if (el) el.hidden = true; };
   const configured = () => Boolean(CONFIG.supabaseUrl && CONFIG.supabaseKey);
   async function fetchBlueQuote() {
-    const response = await fetch("https://ar.dolarapi.com/v1/dolares/blue", { cache: "no-store" });
+    const response = await fetch("https://dolarapi.com/v1/dolares/blue", { cache: "no-store" });
     if (!response.ok) throw new Error("La cotización del dólar blue no está disponible. Intentá de nuevo.");
     const quote = await response.json();
     const rate = num(quote.venta);
