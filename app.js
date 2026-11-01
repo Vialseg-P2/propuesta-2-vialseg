@@ -40,6 +40,7 @@
   };
   const relativeDate = (days) => new Date(Date.now() - days * 86400000).toISOString();
   const initials = (name) => String(name || "AD").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join("").toUpperCase() || "AD";
+  const authEmailForUsername = (username) => username.trim().toLowerCase() + "@vialseg-inventario.example.com";
   const icon = (name, cls) => '<svg class="' + (cls || "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + (ICONS[name] || ICONS.box) + '"/></svg>';
   const show = (el) => { if (el) el.hidden = false; };
   const hide = (el) => { if (el) el.hidden = true; };
@@ -206,7 +207,7 @@
     render();
   }
   function paintIdentity() {
-    const who = state.user && (state.user.email || state.user.name) || "Administración";
+    const who = state.user && (state.user.user_metadata && state.user.user_metadata.username || (state.user.email && state.user.email.split("@")[0]) || state.user.name) || "Administración";
     const name = state.mode === "demo" ? "Administración demo" : who;
     const role = state.mode === "demo" ? "Datos de demostración" : "Inventario Vialseg";
     $("#user-name").textContent = name;
@@ -702,7 +703,9 @@
     button.disabled = true; button.textContent = "Ingresando…";
     hide($("#auth-error"));
     try {
-      const data = await authRequest("token?grant_type=password", { email: val("login-email"), password: $("#login-password").value });
+      const username = val("login-username").trim().toLowerCase();
+      if (!/^[a-z0-9._-]{3,32}$/.test(username)) throw new Error("El usuario debe tener entre 3 y 32 caracteres: letras, números, punto, guion o guion bajo.");
+      const data = await authRequest("token?grant_type=password", { email: authEmailForUsername(username), password: $("#login-password").value });
       const session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + (data.expires_in || 3600) * 1000, user: data.user };
       putSession(session); state.mode = "remote"; state.user = data.user;
       await loadRemoteData();
@@ -805,10 +808,12 @@
   if (!configured()) {
     $("#login-form").hidden = true;
     $("#auth-config-note").hidden = false;
+    $("#demo-login").hidden = false;
     $("#mode-chip").classList.add("demo");
   } else {
     $("#login-form").hidden = false;
     $("#auth-config-note").hidden = true;
+    $("#demo-login").hidden = true;
   }
   restore();
 })();
