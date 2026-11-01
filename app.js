@@ -533,10 +533,10 @@
     if (!items.length) return '<section class="panel"><div class="empty-state"><strong>No hay materiales</strong>Agregá materiales al catálogo para analizar sus precios.</div></section>';
     if (!items.some((i) => String(i.id) === String(state.priceHistoryItem))) state.priceHistoryItem = String(items[0].id);
     const selected = items.find((i) => String(i.id) === String(state.priceHistoryItem));
-    const options = items.map((item) => '<option value="' + esc(item.sku + " · " + item.name) + '"></option><option value="' + esc(item.sku) + '" label="' + esc(item.name) + '"></option><option value="' + esc(item.name) + '" label="' + esc(item.sku) + '"></option>').join("");
+    const options = "";
     const points = state.mode === "demo" ? state.movements.filter((m) => String(m.itemId) === String(selected.id) && m.type === "ingreso" && num(m.unitCostArs) > 0).sort((a,b) => new Date(a.createdAt)-new Date(b.createdAt)) : state.priceHistoryData;
     const ars = (v) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(num(v));
-    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde al precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<input id="price-history-item" type="search" list="price-history-items" value="' + esc(selected.sku + " · " + selected.name) + '" placeholder="Buscar por nombre o código" autocomplete="off"><datalist id="price-history-items">' + options + '</datalist></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
+    return '<section class="panel cost-filter"><div class="panel-head"><div><h2 class="panel-title">Evolución del costo unitario</h2><p class="panel-caption">Cada punto corresponde al precio ingresado al registrar una compra.</p></div></div><div class="report-filter-row"><label class="report-date-field">Material<div class="material-picker"><input id="price-history-item" type="search" value="' + esc(selected.sku + " · " + selected.name) + '" placeholder="Buscar por nombre o código" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="price-history-results" aria-expanded="false"><div id="price-history-results" class="material-suggestions" role="listbox" hidden></div></div></label><div class="cost-current"><span>Último costo guardado</span><strong>' + ars(selected.unitCost) + ' / ' + moneyUSD(selected.avgCostUsd) + '</strong></div></div></section>' +
       '<div class="cost-chart-grid">' + costChart(points, "unitCostArs", "Precio unitario en ARS", ars, "#0795b8") + costChart(points, "unitCostUsd", "Precio unitario en USD", moneyUSD, "#79bd32") + '</div>' +
       '<p class="cost-note">El equivalente en USD se calcula con la cotización vendedora del dólar blue guardada para cada ingreso.</p>';
   }
@@ -634,6 +634,29 @@
       '</div></form>';
     openModal("Editar movimiento", "Corregí los datos de referencia del registro.", body, modalFoot("Guardar cambios", "edit-movement-form"), false);
     $("#edit-movement-form").dataset.id = movement.id;
+  }
+  function renderCostItemSuggestions(query) {
+    const results = $("#price-history-results");
+    const input = $("#price-history-item");
+    if (!results || !input) return;
+    const q = String(query || "").trim().toLocaleLowerCase("es");
+    const items = activeItems().slice().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
+    const matches = q ? items.filter((item) => (String(item.sku || "") + " " + String(item.name || "")).toLocaleLowerCase("es").includes(q)) : items;
+    results.innerHTML = matches.length ? matches.map((item) => '<button type="button" class="material-suggestion" role="option" data-cost-item-id="' + esc(item.id) + '"><span><strong>' + esc(item.sku) + '</strong><span>' + esc(item.name) + '</span></span></button>').join("") : '<div class="material-suggestion-empty">No hay materiales que coincidan.</div>';
+    results.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
+  function hideCostItemSuggestions() {
+    const results = $("#price-history-results"), input = $("#price-history-item");
+    if (results) results.hidden = true;
+    if (input) input.setAttribute("aria-expanded", "false");
+  }
+  function selectCostItem(id) {
+    const item = activeItems().find((candidate) => String(candidate.id) === String(id));
+    if (!item) return;
+    state.priceHistoryItem = String(item.id);
+    hideCostItemSuggestions();
+    loadPriceHistory(item.id).catch((error) => toast(error.message || "No se pudo cargar el historial de precios.", "error"));
   }
   function renderMovementItemSuggestions(query) {
     const results = $("#m-item-results");
@@ -1078,6 +1101,7 @@
   }
 
   function onSearchInput(e) {
+    if (e.target.id === "price-history-item") renderCostItemSuggestions(e.target.value);
     if (e.target.id === "m-item-search") {
       const select = $("#m-item");
       const selected = itemById(select && select.value);
@@ -1108,6 +1132,8 @@
   function csvInputClick() { $("#csv-file").value = ""; $("#csv-file").click(); }
 
   async function onClick(e) {
+    const costChoice = e.target.closest("[data-cost-item-id]");
+    if (costChoice) { selectCostItem(costChoice.dataset.costItemId); return; }
     const materialChoice = e.target.closest("[data-movement-item-id]");
     if (materialChoice) { selectMovementItem(materialChoice.dataset.movementItemId); return; }
     if (!e.target.closest(".material-picker")) hideMovementItemSuggestions();
@@ -1149,8 +1175,16 @@
 
   document.addEventListener("click", (e) => { onClick(e).catch((error) => toast(error.message || "Ocurrió un error.", "error")); });
   document.addEventListener("input", onSearchInput);
-  document.addEventListener("focusin", (e) => { if (e.target.id === "m-item-search") renderMovementItemSuggestions(e.target.value); });
+  document.addEventListener("focusin", (e) => { if (e.target.id === "m-item-search") renderMovementItemSuggestions(e.target.value); if (e.target.id === "price-history-item") renderCostItemSuggestions(e.target.value); });
   document.addEventListener("keydown", (e) => {
+    if (e.target.id === "price-history-item") {
+      if (e.key === "Escape") { hideCostItemSuggestions(); return; }
+      if (e.key === "Enter") {
+        const first = $("#price-history-results [data-cost-item-id]");
+        if (first && !$("#price-history-results").hidden) { e.preventDefault(); selectCostItem(first.dataset.costItemId); }
+      }
+      return;
+    }
     if (e.target.id !== "m-item-search") return;
     if (e.key === "Escape") { hideMovementItemSuggestions(); return; }
     if (e.key === "Enter") {
@@ -1163,7 +1197,7 @@
     if (e.target.id === "item-class-filter") { state.itemClass = e.target.value; render(); }
     if (e.target.id === "item-status-filter") { state.itemStatus = e.target.value; render(); }
     if (e.target.id === "movement-type-filter") { state.movementType = e.target.value; render(); }
-    if (e.target.id === "price-history-item") { const value = e.target.value.trim().toLocaleLowerCase("es"); const item = activeItems().find((candidate) => [candidate.sku, candidate.name, candidate.sku + " · " + candidate.name].some((option) => String(option || "").trim().toLocaleLowerCase("es") === value)); if (item) loadPriceHistory(item.id).catch((error) => toast(error.message || "No se pudo cargar el historial de precios.", "error")); }
+    if (e.target.id === "price-history-item") { const item = activeItems().find((candidate) => [candidate.sku, candidate.name, candidate.sku + " · " + candidate.name].some((option) => String(option || "").trim().toLocaleLowerCase("es") === e.target.value.trim().toLocaleLowerCase("es"))); if (item) selectCostItem(item.id); }
     if (e.target.id === "m-type" || e.target.id === "m-item") updateMovementHelp();
     if (e.target.id === "csv-file" && e.target.files && e.target.files[0]) importCSV(e.target.files[0]).catch((error) => toast(error.message || "No se pudo importar el CSV.", "error"));
   });
