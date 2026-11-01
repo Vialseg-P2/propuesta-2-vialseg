@@ -341,7 +341,7 @@
         const max = Math.max(1, reorderPoint(item) * 1.7, num(item.stock) * 1.15);
         const pct = Math.min(100, Math.round(num(item.stock) / max * 100));
         const level = stockStatus(item);
-        return '<tr><td><div class="table-item"><span class="item-thumb ' + thumbClass(item) + '">' + icon("box") + '</span><span><span class="item-name">' + esc(item.name) + '</span><span class="item-sku">' + esc(item.sku) + ' · ' + esc(item.category) + '</span></span></div></td><td>' + itemClass(item, abc) + '</td><td class="stock-cell"><div class="stock-line"><span class="stock-number">' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><span class="stock-bar"><i class="' + (level === "critical" ? "critical" : level === "low" ? "low" : "") + '" style="width:' + pct + '%"></i></span></div></td><td>' + (item.replenish ? quantity(reorderPoint(item)) + ' ' + esc(item.unit) : '<span class="muted">No aplica</span>') + '</td><td>' + statusHtml(item) + '</td>' + (actions ? '<td><div class="actions-cell"><button class="table-action" data-action="new-movement" data-id="' + esc(item.id) + '">Movimiento</button><button class="table-action icon-only" aria-label="Editar ' + esc(item.name) + '" data-action="edit-item" data-id="' + esc(item.id) + '">' + icon("edit") + '</button></div></td>' : '') + '</tr>';
+        return '<tr><td><div class="table-item"><span class="item-thumb ' + thumbClass(item) + '">' + icon("box") + '</span><span><span class="item-name">' + esc(item.name) + '</span><span class="item-sku">' + esc(item.sku) + ' · ' + esc(item.category) + '</span></span></div></td><td>' + itemClass(item, abc) + '</td><td class="stock-cell"><div class="stock-line"><span class="stock-number">' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><span class="stock-bar"><i class="' + (level === "critical" ? "critical" : level === "low" ? "low" : "") + '" style="width:' + pct + '%"></i></span></div></td><td>' + (item.replenish ? quantity(reorderPoint(item)) + ' ' + esc(item.unit) : '<span class="muted">No aplica</span>') + '</td><td>' + statusHtml(item) + '</td>' + (actions ? '<td><div class="actions-cell"><button class="table-action" data-action="new-movement" data-id="' + esc(item.id) + '">Movimiento</button><button class="table-action icon-only" aria-label="Editar ' + esc(item.name) + '" data-action="edit-item" data-id="' + esc(item.id) + '"><span aria-hidden="true">✏️</span></button><button class="table-action icon-only" aria-label="Eliminar ' + esc(item.name) + '" data-action="delete-item" data-id="' + esc(item.id) + '"><span aria-hidden="true">🗑️</span></button></div></td>' : '') + '</tr>';
       }).join("") : '<tr><td colspan="' + (actions ? 6 : 5) + '"><div class="empty-state"><strong>No hay materiales para mostrar</strong>Probá cambiar los filtros o agregá un material al catálogo.</div></td></tr>') +
       '</tbody></table></div>';
   }
@@ -582,6 +582,27 @@
   }
   function isEditStockForm() { return !$("#f-stock"); }
 
+  async function deleteItem(id) {
+    const item = itemById(id);
+    if (!item) return;
+    const confirmed = window.confirm("¿Eliminar \"" + item.name + "\" del catálogo? Los movimientos registrados se conservarán en el historial.");
+    if (!confirmed) return;
+    const loading = showLoading("Eliminando material…");
+    try {
+      if (state.mode === "demo") {
+        state.items = state.items.filter((entry) => String(entry.id) !== String(id));
+        persistDemo();
+      } else {
+        await api("inventory_items?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+        state.items = state.items.filter((entry) => String(entry.id) !== String(id));
+      }
+      render();
+      toast("Material eliminado del catálogo.");
+    } catch (error) {
+      toast(error.message || "No se pudo eliminar el material.", "error");
+    } finally { loading(); }
+  }
+
   async function submitItemForm(form) {
     const loading = showLoading("Guardando material…");
     try {
@@ -807,6 +828,7 @@
       const action = actionEl.dataset.action, id = actionEl.dataset.id, kind = actionEl.dataset.kind;
       if (action === "new-item") showItemModal();
       else if (action === "edit-item") showItemModal(id);
+      else if (action === "delete-item") await deleteItem(id);
       else if (action === "new-movement") showMovementModal(id, kind);
       else if (action === "import-csv") csvInputClick();
       else if (action === "export-items") exportItems();
