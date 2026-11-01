@@ -304,7 +304,7 @@
     const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999)).slice(0, 5);
     return '<div class="kpi-grid">' +
       kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
-      kpi("VALOR DEL STOCK", money(value), "A costo unitario registrado", "coin", "lime") +
+      kpi("VALOR DEL STOCK", money(value), "", "coin", "lime") +
       kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
       kpi("SUGERENCIAS DE REPOSICIÓN", candidates().length, "Según consumo y plazo de entrega", "bell", "") +
       '</div><div class="content-grid">' +
