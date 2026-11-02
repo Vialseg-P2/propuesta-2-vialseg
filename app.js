@@ -162,7 +162,7 @@
       body: JSON.stringify(body)
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.msg || data.message || data.error_description || "No se pudo iniciar sesión.");
+    if (!response.ok) { const message = data.msg || data.message || data.error_description || ""; if (/invalid login credentials/i.test(message)) throw new Error("El usuario o la contraseña son incorrectos."); throw new Error(message || "No se pudo iniciar sesión."); }
     return data;
   }
   async function refreshAuth() {
