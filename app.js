@@ -1011,7 +1011,8 @@
     const shell = $("#app-shell");
     const auth = $("#auth-screen");
     $("#login-form").hidden = !configured();
-    $("#auth-config-note").hidden = configured();
+    const configNote = $("#auth-config-note");
+    if (configNote) configNote.hidden = configured();
     if (!shell.hidden) {
       shell.classList.remove("app-enter");
       shell.classList.add("app-exit");
