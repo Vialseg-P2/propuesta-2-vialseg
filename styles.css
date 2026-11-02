@@ -296,4 +296,4 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cost-filter .material-picker,.cost-filter #price-history-item{width:100%;box-sizing:border-box}
 @media(max-width:640px){.cost-filter .report-date-field{flex:1 1 100%;max-width:none;min-width:0}}
 
-.brand-auth strong{color:var(--lime-dark)}
+.auth-panel .brand-auth strong{color:#5c9820!important}
