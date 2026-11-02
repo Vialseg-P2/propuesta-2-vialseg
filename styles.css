@@ -295,3 +295,5 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cost-filter .report-date-field{flex:0 1 400px;width:400px;max-width:100%;min-width:0}
 .cost-filter .material-picker,.cost-filter #price-history-item{width:100%;box-sizing:border-box}
 @media(max-width:640px){.cost-filter .report-date-field{flex:1 1 100%;max-width:none;min-width:0}}
+
+.brand-auth strong{color:var(--lime-dark)}
