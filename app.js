@@ -550,7 +550,7 @@
     if (state.view === "costs") render();
   }
   function renderReplenishment() {
-    const list = candidates().sort((a, b) => minimumOrderQuantity(b) - minimumOrderQuantity(a));
+    const list = candidates().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
     const totalCritical = criticalItems().length;
     const noRestock = activeItems().filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
     return '<div class="replenishment-summary"><article class="summary-card"><span>Materiales para reponer</span><strong>' + list.length + '</strong></article><article class="summary-card"><span>Bajo stock de seguridad</span><strong>' + totalCritical + '</strong></article><article class="summary-card"><span>Sin reposición y bajo umbral</span><strong>' + noRestock.length + '</strong></article></div>' +
