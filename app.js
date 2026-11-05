@@ -57,14 +57,14 @@
 
   function seedItems() {
     return [
-      { id: "demo-1", sku: "EL-1042", name: "Módulo de control", category: "Electrónica", unit: "u", stock: 8, unitCost: 82500, monthlyUse: 11, safetyStock: 10, leadDays: 18, lotSize: 5, supplier: "Electro Sistemas", location: "Estante A · Nivel 2", replenish: true, active: true, updatedAt: relativeDate(0) },
-      { id: "demo-2", sku: "CA-0218", name: "Cable de alimentación", category: "Cableado", unit: "m", stock: 84, unitCost: 1850, monthlyUse: 55, safetyStock: 30, leadDays: 7, lotSize: 25, supplier: "Cables del Norte", location: "Estante C · Nivel 1", replenish: true, active: true, updatedAt: relativeDate(1) },
-      { id: "demo-3", sku: "SE-0305", name: "Sensor de velocidad", category: "Electrónica", unit: "u", stock: 3, unitCost: 46800, monthlyUse: 7, safetyStock: 5, leadDays: 22, lotSize: 5, supplier: "Electro Sistemas", location: "Estante A · Nivel 1", replenish: true, active: true, updatedAt: relativeDate(2) },
-      { id: "demo-4", sku: "FI-0081", name: "Fusible industrial", category: "Eléctrico", unit: "u", stock: 126, unitCost: 760, monthlyUse: 28, safetyStock: 20, leadDays: 4, lotSize: 50, supplier: "Suministros Delta", location: "Estante B · Cajón 4", replenish: true, active: true, updatedAt: relativeDate(3) },
-      { id: "demo-5", sku: "PL-0017", name: "Placa electrónica", category: "Electrónica", unit: "u", stock: 2, unitCost: 124000, monthlyUse: 3, safetyStock: 4, leadDays: 30, lotSize: 2, supplier: "TecnoPartes", location: "Armario seguro · B", replenish: true, active: true, updatedAt: relativeDate(5) },
-      { id: "demo-6", sku: "MO-0110", name: "Soporte de montaje", category: "Mecánica", unit: "u", stock: 19, unitCost: 9200, monthlyUse: 10, safetyStock: 8, leadDays: 12, lotSize: 10, supplier: "Metalúrgica Roca", location: "Estante D · Nivel 3", replenish: true, active: true, updatedAt: relativeDate(5) },
-      { id: "demo-7", sku: "CA-0400", name: "Conector estanco", category: "Cableado", unit: "u", stock: 7, unitCost: 3200, monthlyUse: 5, safetyStock: 8, leadDays: 9, lotSize: 10, supplier: "Cables del Norte", location: "Estante C · Cajón 2", replenish: false, active: true, updatedAt: relativeDate(7) },
-      { id: "demo-8", sku: "HE-0009", name: "Kit de fijaciones", category: "Mecánica", unit: "kit", stock: 52, unitCost: 1450, monthlyUse: 14, safetyStock: 20, leadDays: 6, lotSize: 20, supplier: "Suministros Delta", location: "Estante D · Cajón 1", replenish: true, active: true, updatedAt: relativeDate(9) }
+      { id: "demo-1", sku: "EL-1042", name: "Módulo de control", category: "Electrónica", unit: "u", stock: 8, unitCost: 82500, monthlyUse: 11, safetyStock: 10, leadDays: 18, minimumLot: 5, supplier: "Electro Sistemas", location: "Estante A · Nivel 2", replenish: true, active: true, updatedAt: relativeDate(0) },
+      { id: "demo-2", sku: "CA-0218", name: "Cable de alimentación", category: "Cableado", unit: "m", stock: 84, unitCost: 1850, monthlyUse: 55, safetyStock: 30, leadDays: 7, minimumLot: 25, supplier: "Cables del Norte", location: "Estante C · Nivel 1", replenish: true, active: true, updatedAt: relativeDate(1) },
+      { id: "demo-3", sku: "SE-0305", name: "Sensor de velocidad", category: "Electrónica", unit: "u", stock: 3, unitCost: 46800, monthlyUse: 7, safetyStock: 5, leadDays: 22, minimumLot: 5, supplier: "Electro Sistemas", location: "Estante A · Nivel 1", replenish: true, active: true, updatedAt: relativeDate(2) },
+      { id: "demo-4", sku: "FI-0081", name: "Fusible industrial", category: "Eléctrico", unit: "u", stock: 126, unitCost: 760, monthlyUse: 28, safetyStock: 20, leadDays: 4, minimumLot: 50, supplier: "Suministros Delta", location: "Estante B · Cajón 4", replenish: true, active: true, updatedAt: relativeDate(3) },
+      { id: "demo-5", sku: "PL-0017", name: "Placa electrónica", category: "Electrónica", unit: "u", stock: 2, unitCost: 124000, monthlyUse: 3, safetyStock: 4, leadDays: 30, minimumLot: 2, supplier: "TecnoPartes", location: "Armario seguro · B", replenish: true, active: true, updatedAt: relativeDate(5) },
+      { id: "demo-6", sku: "MO-0110", name: "Soporte de montaje", category: "Mecánica", unit: "u", stock: 19, unitCost: 9200, monthlyUse: 10, safetyStock: 8, leadDays: 12, minimumLot: 10, supplier: "Metalúrgica Roca", location: "Estante D · Nivel 3", replenish: true, active: true, updatedAt: relativeDate(5) },
+      { id: "demo-7", sku: "CA-0400", name: "Conector estanco", category: "Cableado", unit: "u", stock: 7, unitCost: 3200, monthlyUse: 5, safetyStock: 8, leadDays: 9, minimumLot: 10, supplier: "Cables del Norte", location: "Estante C · Cajón 2", replenish: false, active: true, updatedAt: relativeDate(7) },
+      { id: "demo-8", sku: "HE-0009", name: "Kit de fijaciones", category: "Mecánica", unit: "kit", stock: 52, unitCost: 1450, monthlyUse: 14, safetyStock: 20, leadDays: 6, minimumLot: 20, supplier: "Suministros Delta", location: "Estante D · Cajón 1", replenish: true, active: true, updatedAt: relativeDate(9) }
     ];
   }
 
@@ -84,7 +84,7 @@
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
       if (saved && Array.isArray(saved.items) && Array.isArray(saved.movements)) {
-        state.items = saved.items;
+        state.items = saved.items.map((item) => ({ ...item, minimumLot: Math.max(0, num(item.minimumLot !== undefined ? item.minimumLot : item.lotSize)) }));
         state.movements = saved.movements;
         return;
       }
@@ -103,7 +103,7 @@
     return {
       id: row.id, sku: row.sku, name: row.nombre, category: row.categoria || "General", unit: row.unidad || "u",
       stock: num(row.stock), unitCost: num(row.costo_unitario), avgCostUsd: num(row.costo_promedio_usd), monthlyUse: num(row.consumo_mensual),
-      safetyStock: num(row.stock_seguridad), leadDays: num(row.plazo_dias), lotSize: num(row.lote_reposicion) || 1,
+      safetyStock: num(row.stock_seguridad), leadDays: num(row.plazo_dias), minimumLot: Math.max(0, num(row.lote_reposicion)),
       supplier: row.proveedor || "", location: row.ubicacion || "", replenish: row.se_repone !== false, active: row.activo !== false,
       updatedAt: row.updated_at || row.created_at, quoteRate: num(row.cotizacion_blue_base)
     };
@@ -127,7 +127,7 @@
     return { id: row.id, itemId: row.item_id, sku: row.sku, itemName: row.item_name, type: row.tipo, quantity: num(row.cantidad), stockBefore: num(row.stock_antes), stockAfter: num(row.stock_despues), note: row.nota || "", reference: row.referencia || "", actor: row.actor || "", createdAt: row.created_at, unitCostArs: num(row.precio_unitario_ars), unitCostUsd: num(row.precio_unitario_usd), blueRate: num(row.cotizacion_blue), quoteAt: row.cotizacion_fecha, quoteSource: row.cotizacion_fuente || "" };
   }
   function itemToRow(item) {
-    return { sku: item.sku, nombre: item.name, categoria: item.category, unidad: item.unit, stock: num(item.stock), costo_unitario: num(item.unitCost), costo_promedio_usd: num(item.avgCostUsd), cotizacion_blue_base: num(item.quoteRate), consumo_mensual: num(item.monthlyUse), stock_seguridad: num(item.safetyStock), plazo_dias: num(item.leadDays), lote_reposicion: num(item.lotSize) || 1, proveedor: item.supplier || "", ubicacion: item.location || "", se_repone: item.replenish !== false, activo: item.active !== false, updated_at: new Date().toISOString() };
+    return { sku: item.sku, nombre: item.name, categoria: item.category, unidad: item.unit, stock: num(item.stock), costo_unitario: num(item.unitCost), costo_promedio_usd: num(item.avgCostUsd), cotizacion_blue_base: num(item.quoteRate), consumo_mensual: num(item.monthlyUse), stock_seguridad: num(item.safetyStock), plazo_dias: num(item.leadDays), lote_reposicion: Math.max(0, num(item.minimumLot)), proveedor: item.supplier || "", ubicacion: item.location || "", se_repone: item.replenish !== false, activo: item.active !== false, updated_at: new Date().toISOString() };
   }
 
   function getSession() {
@@ -221,11 +221,10 @@
   function reorderPoint(item) {
     return num(item.safetyStock) + (num(item.monthlyUse) / 30) * num(item.leadDays);
   }
-  function suggestedQuantity(item) {
+  function minimumOrderQuantity(item) {
     if (!item.replenish || (num(item.safetyStock) <= 0 && num(item.monthlyUse) <= 0) || num(item.stock) > reorderPoint(item)) return 0;
-    const lot = Math.max(1, num(item.lotSize) || 1);
-    const target = reorderPoint(item) + lot;
-    return Math.max(lot, Math.ceil(Math.max(0, target - num(item.stock)) / lot) * lot);
+    const faltanteHastaPuntoDePedido = Math.max(0, reorderPoint(item) - num(item.stock));
+    return Math.max(faltanteHastaPuntoDePedido, Math.max(0, num(item.minimumLot)));
   }
   function stockStatus(item) {
     if (!item.replenish) return "non";
@@ -247,7 +246,7 @@
     return map;
   }
   function activeItems() { return state.items.filter((item) => item.active !== false); }
-  function candidates() { return activeItems().filter((item) => suggestedQuantity(item) > 0); }
+  function candidates() { return activeItems().filter((item) => minimumOrderQuantity(item) > 0); }
   function criticalItems() { return activeItems().filter((item) => item.replenish && num(item.safetyStock) > 0 && num(item.stock) <= num(item.safetyStock)); }
   function classCounts() {
     const map = withAbc(activeItems());
@@ -551,13 +550,13 @@
     if (state.view === "costs") render();
   }
   function renderReplenishment() {
-    const list = candidates().sort((a, b) => suggestedQuantity(b) - suggestedQuantity(a));
+    const list = candidates().sort((a, b) => minimumOrderQuantity(b) - minimumOrderQuantity(a));
     const totalCritical = criticalItems().length;
     const noRestock = activeItems().filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
     return '<div class="replenishment-summary"><article class="summary-card"><span>Materiales para reponer</span><strong>' + list.length + '</strong></article><article class="summary-card"><span>Bajo stock de seguridad</span><strong>' + totalCritical + '</strong></article><article class="summary-card"><span>Sin reposición y bajo umbral</span><strong>' + noRestock.length + '</strong></article></div>' +
       (noRestock.length ? '<section class="panel" style="margin-bottom:15px"><div class="panel-head"><div><h2 class="panel-title">Materiales sin reposición</h2><p class="panel-caption">Se muestran para seguimiento; el sistema no sugiere una compra automática.</p></div></div><div class="attention-list">' + noRestock.map((item) => '<div class="attention-row"><span class="attention-icon amber">' + icon("alert") + '</span><div class="attention-copy"><strong>' + esc(item.name) + '</strong><small>' + esc(item.sku) + ' · Definir alternativa de abastecimiento</small></div><div class="attention-stock">' + quantity(item.stock) + ' ' + esc(item.unit) + '<small>stock actual</small></div></div>').join("") + '</div></section>' : '') +
-      '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Sugerencias de reposición</h2><p class="panel-caption">El punto de pedido incorpora stock de seguridad, consumo promedio y plazo del proveedor.</p></div></div>' +
-      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(suggestedQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Lote sugerido</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
+      '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Materiales para reponer</h2><p class="panel-caption">La cantidad cubre lo que falta hasta el punto de pedido o el lote mínimo exigido por el proveedor, si es mayor.</p></div></div>' +
+      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(minimumOrderQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Cantidad mínima a pedir</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
   }
 
   function toast(message, type) {
@@ -592,7 +591,7 @@
       field("Consumo mensual promedio", '<input id="f-use" type="number" min="0" step="0.01" value="' + esc(item ? item.monthlyUse : 0) + '">') +
       field("Stock de seguridad", '<input id="f-safety" type="number" min="0" step="0.01" value="' + esc(item ? item.safetyStock : 0) + '">') +
       field("Plazo del proveedor (días)", '<input id="f-lead" type="number" min="0" step="1" value="' + esc(item ? item.leadDays : 0) + '">') +
-      field("Lote de reposición", '<input id="f-lot" type="number" min="0.01" step="0.01" value="' + esc(item ? item.lotSize : 1) + '">') +
+      field("Lote mínimo del proveedor", '<input id="f-minimum-lot" type="number" min="0" step="0.01" value="' + esc(item ? item.minimumLot : 0) + '" placeholder="0 si no aplica"><small>Mínimo indicado por el proveedor; dejalo en 0 si no existe.</small>') +
       field("Proveedor", '<input id="f-supplier" value="' + esc(item ? item.supplier : "") + '" placeholder="Proveedor habitual">') +
       field("Ubicación física", '<input id="f-location" value="' + esc(item ? item.location : "") + '" placeholder="Depósito, estante…">') +
       (isEdit ? '<div class="field full"><div class="form-info">El stock actual es ' + quantity(item.stock) + ' ' + esc(item.unit) + '. Para modificarlo, registrá un movimiento y conservá el historial.</div></div>' : field("Stock inicial", '<input id="f-stock" type="number" min="0" step="0.01" value="0"><small>Se guardará como un ajuste inicial auditable.</small>')) +
@@ -793,8 +792,9 @@
     const name = val("f-name");
     const category = val("f-category");
     const unit = val("f-unit");
-    const lotSize = num(val("f-lot"));
-    if (!sku || !name || !category || !unit || lotSize <= 0) throw new Error("Completá los datos obligatorios y configurá un lote mayor que cero.");
+    const minimumLot = num(val("f-minimum-lot"));
+    if (!sku || !name || !category || !unit) throw new Error("Completá los datos obligatorios.");
+    if (minimumLot < 0) throw new Error("El lote mínimo del proveedor no puede ser negativo.");
     const id = $("#item-form").dataset.id;
     const existing = id ? itemById(id) : null;
     const duplicate = state.items.find((x) => x.sku.toLowerCase() === sku.toLowerCase() && String(x.id) !== String(id));
@@ -802,7 +802,7 @@
     const item = {
       id: id || "demo-i-" + Date.now(), sku: sku, name: name, category: category, unit: unit,
       stock: existing ? num(existing.stock) : 0, unitCost: num(val("f-cost")), avgCostUsd: existing ? num(existing.avgCostUsd) : 0, quoteRate: existing ? num(existing.quoteRate) : 0, monthlyUse: num(val("f-use")),
-      safetyStock: num(val("f-safety")), leadDays: num(val("f-lead")), lotSize: lotSize,
+      safetyStock: num(val("f-safety")), leadDays: num(val("f-lead")), minimumLot: minimumLot,
       supplier: val("f-supplier"), location: val("f-location"), replenish: $("#f-replenish").checked, active: true, updatedAt: new Date().toISOString()
     };
     return { item: item, isNew: !existing, initialStock: isEditStockForm() ? 0 : num(val("f-stock")) };
@@ -900,15 +900,15 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportItems() {
-    const headers = ["codigo","nombre","categoria","unidad","stock","costo_unitario","consumo_mensual","stock_seguridad","plazo_dias","lote_reposicion","proveedor","ubicacion","se_repone"];
-    downloadCSV("vialseg-materiales.csv", headers, activeItems().map((i) => [i.sku,i.name,i.category,i.unit,i.stock,i.unitCost,i.monthlyUse,i.safetyStock,i.leadDays,i.lotSize,i.supplier,i.location,i.replenish ? "si" : "no"]));
+    const headers = ["codigo","nombre","categoria","unidad","stock","costo_unitario","consumo_mensual","stock_seguridad","plazo_dias","lote_minimo","proveedor","ubicacion","se_repone"];
+    downloadCSV("vialseg-materiales.csv", headers, activeItems().map((i) => [i.sku,i.name,i.category,i.unit,i.stock,i.unitCost,i.monthlyUse,i.safetyStock,i.leadDays,i.minimumLot,i.supplier,i.location,i.replenish ? "si" : "no"]));
   }
   function exportMovements() {
     const headers = ["fecha","codigo","material","tipo","cantidad","stock_antes","stock_despues","referencia","motivo","responsable"];
     downloadCSV("vialseg-movimientos.csv", headers, state.movements.map((m) => [m.createdAt || m.created_at,m.sku,m.itemName || m.item_name,m.type || m.tipo,m.quantity !== undefined ? m.quantity : m.cantidad,m.stockBefore !== undefined ? m.stockBefore : m.stock_antes,m.stockAfter !== undefined ? m.stockAfter : m.stock_despues,m.reference || m.referencia,m.note || m.nota,actorLabel(m.actor)]));
   }
   function downloadTemplate() {
-    const headers = ["codigo","nombre","categoria","unidad","stock","costo_unitario","consumo_mensual","stock_seguridad","plazo_dias","lote_reposicion","proveedor","ubicacion","se_repone"];
+    const headers = ["codigo","nombre","categoria","unidad","stock","costo_unitario","consumo_mensual","stock_seguridad","plazo_dias","lote_minimo","proveedor","ubicacion","se_repone"];
     downloadCSV("plantilla-inventario-vialseg.csv", headers, []);
   }
   function parseCSV(text) {
@@ -948,7 +948,7 @@
       sku:index("codigo",["sku","code"]), name:index("nombre",["material","name"]), category:index("categoria",["category"]),
       unit:index("unidad",["unit"]), stock:index("stock",["existencia"]), cost:index("costo_unitario",["costo","precio_unitario"]),
       use:index("consumo_mensual",["uso_mensual"]), safety:index("stock_seguridad",["seguridad"]),
-      lead:index("plazo_dias",["lead_time"]), lot:index("lote_reposicion",["lote"]), supplier:index("proveedor",["supplier"]),
+      lead:index("plazo_dias",["lead_time"]), lot:index("lote_minimo",["lote_reposicion","lote"]), supplier:index("proveedor",["supplier"]),
       location:index("ubicacion",["deposito","location"]), replenish:index("se_repone",["reponer","replenish"])
     };
     if (col.sku < 0 || col.name < 0) throw new Error("La plantilla necesita al menos las columnas codigo y nombre.");
@@ -978,7 +978,7 @@
           monthlyUse: parseNum(cell(col.use, existing ? existing.monthlyUse : 0)),
           safetyStock: parseNum(cell(col.safety, existing ? existing.safetyStock : 0)),
           leadDays: parseNum(cell(col.lead, existing ? existing.leadDays : 0)),
-          lotSize: Math.max(0.01, parseNum(cell(col.lot, existing ? existing.lotSize : 1))),
+          minimumLot: Math.max(0, parseNum(cell(col.lot, existing ? existing.minimumLot : 0))),
           supplier: cell(col.supplier, existing ? existing.supplier : ""),
           location: cell(col.location, existing ? existing.location : ""),
           replenish: /^(no|false|0)$/i.test(cell(col.replenish, existing ? (existing.replenish ? "si" : "no") : "si")) ? false : true,
@@ -1157,7 +1157,7 @@
         else { state.reportFrom = from; state.reportTo = to; render(); }
       }
       else if (action === "export-replenishment") {
-        const rows = candidates().map((i) => [i.sku,i.name,i.stock,i.unit,reorderPoint(i),suggestedQuantity(i),i.supplier,i.leadDays]);
+        const rows = candidates().map((i) => [i.sku,i.name,i.stock,i.unit,reorderPoint(i),minimumOrderQuantity(i),i.supplier,i.leadDays]);
         downloadCSV("vialseg-reposicion.csv", ["codigo","material","stock_actual","unidad","punto_pedido","cantidad_sugerida","proveedor","plazo_dias"], rows);
       } else if (action === "download-template") downloadTemplate();
       else if (action === "open-settings") showSettings();
