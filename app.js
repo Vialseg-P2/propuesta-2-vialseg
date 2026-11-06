@@ -556,7 +556,7 @@
     return '<div class="replenishment-summary"><article class="summary-card"><span>Materiales para reponer</span><strong>' + list.length + '</strong></article><article class="summary-card"><span>Bajo stock de seguridad</span><strong>' + totalCritical + '</strong></article><article class="summary-card"><span>Sin reposición y bajo umbral</span><strong>' + noRestock.length + '</strong></article></div>' +
       (noRestock.length ? '<section class="panel" style="margin-bottom:15px"><div class="panel-head"><div><h2 class="panel-title">Materiales sin reposición</h2><p class="panel-caption">Se muestran para seguimiento; el sistema no sugiere una compra automática.</p></div></div><div class="attention-list">' + noRestock.map((item) => '<div class="attention-row"><span class="attention-icon amber">' + icon("alert") + '</span><div class="attention-copy"><strong>' + esc(item.name) + '</strong><small>' + esc(item.sku) + ' · Definir alternativa de abastecimiento</small></div><div class="attention-stock">' + quantity(item.stock) + ' ' + esc(item.unit) + '<small>stock actual</small></div></div>').join("") + '</div></section>' : '') +
       '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Materiales para reponer</h2><p class="panel-caption">La cantidad cubre lo que falta hasta el punto de pedido o el lote mínimo exigido por el proveedor, si es mayor.</p></div></div>' +
-      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(minimumOrderQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Cantidad a pedir</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
+      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(minimumOrderQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Cantidad a pedir</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso" data-quantity="' + esc(minimumOrderQuantity(item)) + '">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
   }
 
   function toast(message, type) {
@@ -602,7 +602,7 @@
   }
   function field(label, inputHtml) { return '<div class="field"><label>' + label + '</label>' + inputHtml + '</div>'; }
 
-  function showMovementModal(id, kind) {
+  function showMovementModal(id, kind, presetQuantity) {
     const items = activeItems().slice().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
     if (!items.length) { toast("Primero agregá un material al catálogo.", "error"); return; }
     const selected = id ? itemById(id) : items[0];
@@ -612,7 +612,7 @@
     const body = '<form id="movement-form"><div class="form-grid">' +
       field("Material", '<div class="material-picker"><input id="m-item-search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="m-item-results" aria-expanded="false" value="' + esc(selectedLabel) + '" placeholder="Escribí nombre o código"><div id="m-item-results" class="material-suggestions" role="listbox" hidden></div><select id="m-item" hidden>' + options + '</select></div>') +
       field("Tipo de movimiento", '<select id="m-type">' + typeOptions + '</select>') +
-      field('<span id="m-quantity-label">Cantidad</span>', '<input id="m-quantity" type="number" min="0" step="0.01" required placeholder="0">') +
+      field('<span id="m-quantity-label">Cantidad</span>', '<input id="m-quantity" type="number" min="0" step="0.01" required placeholder="0" value="' + (presetQuantity == null ? "" : esc(presetQuantity)) + '">') +
       '<div class="field full" id="m-unit-cost-field" hidden><label for="m-unit-cost-ars">Precio pagado por unidad (ARS)</label><input id="m-unit-cost-ars" type="number" min="0.01" step="0.01" placeholder="0,00"><small id="m-blue-quote-note" class="field-hint">Se convertirá a USD con el dólar blue vendedor al registrar el ingreso.</small></div>' +
       field("Referencia (opcional)", '<input id="m-reference" maxlength="80" placeholder="N.º de OC, OT, factura o ticket"><small>Identifica el comprobante relacionado; no se completa automáticamente.</small>') +
       '<div class="field full">' + '<label for="m-note">Motivo o detalle</label><textarea id="m-note" required maxlength="300" placeholder="Dejá una nota breve para mantener la trazabilidad"></textarea></div>' +
@@ -1141,11 +1141,11 @@
     if (nav) { setView(nav.dataset.view); return; }
     const actionEl = e.target.closest("[data-action]");
     if (actionEl) {
-      const action = actionEl.dataset.action, id = actionEl.dataset.id, kind = actionEl.dataset.kind;
+      const action = actionEl.dataset.action, id = actionEl.dataset.id, kind = actionEl.dataset.kind, quantity = actionEl.dataset.quantity;
       if (action === "new-item") showItemModal();
       else if (action === "edit-item") showItemModal(id);
       else if (action === "delete-item") await deleteItem(id);
-      else if (action === "new-movement") showMovementModal(id, kind);
+      else if (action === "new-movement") showMovementModal(id, kind, quantity);
       else if (action === "edit-movement") showEditMovementModal(id);
       else if (action === "import-csv") csvInputClick();
       else if (action === "export-items") exportItems();
