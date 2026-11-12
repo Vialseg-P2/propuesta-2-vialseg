@@ -331,7 +331,13 @@
     const items = activeItems();
     const value = items.reduce((sum, item) => sum + num(item.stock) * lastPurchaseCostUsd(item), 0);
     const noRestock = items.filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
-    const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999)).slice(0, 5);
+    const abc = withAbc(items);
+    const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => {
+      const classOrder = { A: 0, B: 1, C: 2 };
+      const byClass = classOrder[abc[a.id] || "C"] - classOrder[abc[b.id] || "C"];
+      if (byClass) return byClass;
+      return (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999);
+    }).slice(0, 5);
     return '<div class="kpi-grid">' +
       kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
       kpi("VALOR DEL STOCK", moneyUSD(value), "Valuado al último precio pagado", "coin", "lime") +
@@ -537,13 +543,18 @@
     if (state.view === "costs") render();
   }
   function renderReplenishment() {
-    const list = candidates().sort((a, b) => String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" }));
+    const abc = withAbc(activeItems());
+    const classOrder = { A: 0, B: 1, C: 2 };
+    const list = candidates().sort((a, b) => {
+      const byClass = classOrder[abc[a.id] || "C"] - classOrder[abc[b.id] || "C"];
+      return byClass || String(a.sku || "").localeCompare(String(b.sku || ""), "es", { numeric: true, sensitivity: "base" });
+    });
     const totalCritical = criticalItems().length;
     const noRestock = activeItems().filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
     return '<div class="replenishment-summary"><article class="summary-card"><span>Materiales para reponer</span><strong>' + list.length + '</strong></article><article class="summary-card"><span>Bajo stock de seguridad</span><strong>' + totalCritical + '</strong></article><article class="summary-card"><span>Sin reposición y bajo umbral</span><strong>' + noRestock.length + '</strong></article></div>' +
       (noRestock.length ? '<section class="panel" style="margin-bottom:15px"><div class="panel-head"><div><h2 class="panel-title">Materiales sin reposición</h2><p class="panel-caption">Se muestran para seguimiento; el sistema no sugiere una compra automática.</p></div></div><div class="attention-list">' + noRestock.map((item) => '<div class="attention-row"><span class="attention-icon amber">' + icon("alert") + '</span><div class="attention-copy"><strong>' + esc(item.name) + '</strong><small>' + esc(item.sku) + ' · Definir alternativa de abastecimiento</small></div><div class="attention-stock">' + quantity(item.stock) + ' ' + esc(item.unit) + '<small>stock actual</small></div></div>').join("") + '</div></section>' : '') +
       '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Materiales para reponer</h2><p class="panel-caption">La cantidad cubre lo que falta hasta el punto de pedido o el lote mínimo exigido por el proveedor, si es mayor.</p></div></div>' +
-      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + '</div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(minimumOrderQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Cantidad a pedir</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso" data-quantity="' + esc(minimumOrderQuantity(item)) + '">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
+      (list.length ? list.map((item) => '<article class="reorder-card"><div class="reorder-main"><div class="reorder-name">' + esc(item.name) + ' <span class="class-badge abc-' + (abc[item.id] || "C").toLowerCase() + '">' + (abc[item.id] || "C") + '</span></div><div class="reorder-meta">' + esc(item.sku) + ' · ' + esc(item.supplier || "Proveedor sin registrar") + '</div></div><div class="reorder-value"><span>' + quantity(item.stock) + ' ' + esc(item.unit) + '</span><small>Stock actual</small></div><div class="reorder-value"><span>' + quantity(reorderPoint(item)) + ' ' + esc(item.unit) + '</span><small>Punto de pedido</small></div><div class="reorder-value"><span class="reorder-qty">' + quantity(minimumOrderQuantity(item)) + ' ' + esc(item.unit) + '</span><small>Cantidad a pedir</small></div><div class="reorder-action"><button class="button button-outline button-small" data-action="new-movement" data-id="' + esc(item.id) + '" data-kind="ingreso" data-quantity="' + esc(minimumOrderQuantity(item)) + '">Registrar ingreso</button></div></article>').join("") : '<div class="reorder-none"><strong>No hay reposiciones pendientes</strong>Los materiales reponibles están por encima de su punto de pedido.</div>')
   }
 
   function toast(message, type) {
