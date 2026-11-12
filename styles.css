@@ -193,6 +193,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .summary-card strong{display:block;margin-top:8px;color:#243145;font:700 22px Manrope,sans-serif}
 .reorder-card{display:grid;grid-template-columns:minmax(180px,1.3fr) 58px minmax(95px,.6fr) minmax(95px,.6fr) minmax(120px,.8fr) auto;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #edf0f4}
 .reorder-card:last-child{border-bottom:0}
+.reorder-class{text-align:center}
 .reorder-name{color:#334155;font-size:11px;font-weight:700}
 .reorder-meta{margin-top:4px;color:#8d98a7;font-size:9px}
 .reorder-value span,.reorder-value small{display:block}
