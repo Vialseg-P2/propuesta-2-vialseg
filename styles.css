@@ -200,6 +200,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .reorder-card{padding-top:14px;padding-bottom:14px;border-bottom:1px solid #edf0f4}
 .reorder-card:last-child{border-bottom:0}
 .reorder-abc-column{display:grid;align-self:stretch;place-items:center;min-width:64px}
+.reorder-header>*:nth-child(n+3),.reorder-card>*:nth-child(n+3){transform:translateX(42px)}
 .reorder-action{justify-self:start}.reorder-action .button{white-space:nowrap}
 .reorder-name{color:#334155;font-size:11px;font-weight:700}
 .reorder-meta{margin-top:4px;color:#8d98a7;font-size:9px}
