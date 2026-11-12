@@ -337,7 +337,7 @@
       const byClass = classOrder[abc[a.id] || "C"] - classOrder[abc[b.id] || "C"];
       if (byClass) return byClass;
       return (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999);
-    }).slice(0, 5);
+    });
     return '<div class="kpi-grid">' +
       kpi("VALOR DEL STOCK", moneyUSD(value), "Valuado al último precio pagado", "coin", "lime") +
       kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
