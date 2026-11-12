@@ -331,26 +331,6 @@
     const items = activeItems();
     const value = items.reduce((sum, item) => sum + num(item.stock) * lastPurchaseCostUsd(item), 0);
     const noRestock = items.filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
-    const abc = withAbc(items);
-    const counts = ["A", "B", "C"].map((key) => ({ key: key, count: Object.values(abc).filter((x) => x === key).length }));
-    const maxCount = Math.max(1, ...counts.map((x) => x.count));
-    const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999)).slice(0, 5);
-    return '<div class="kpi-grid">' +
-      kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
-      kpi("VALOR DEL STOCK", moneyUSD(value), "Valuado al último precio pagado", "coin", "lime") +
-      kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
-      kpi("SUGERENCIAS DE REPOSICIÓN", candidates().length, "Según consumo y plazo de entrega", "bell", "") +
-      '</div><div class="content-grid">' +
-      '<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Clasificación ABC</h2><p class="panel-caption">Cantidad de materiales por clase; la clase se determina por el valor anual de consumo.</p></div><button class="text-link" data-action="open-settings">Ver método</button></div><div class="class-chart">' +
-      counts.map((x) => '<div class="class-row"><span class="class-badge abc-' + x.key.toLowerCase() + '">' + x.key + '</span><div class="class-track"><div class="class-fill ' + x.key.toLowerCase() + '" style="width:' + Math.round(x.count / maxCount * 100) + '%"></div></div><span class="class-count">' + x.count + ' insumos</span></div>').join("") +
-      '<div class="chart-foot"><span>A: hasta 80% acumulado</span><span>B: hasta 95% · C: resto</span></div></div></section>' +
-      '<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Necesitan atención</h2><p class="panel-caption">Materiales bajo su umbral definido.</p></div><button class="text-link" data-view="replenishment">Ver lista</button></div><div class="attention-list">' +
-      (attention.length ? attention.map((item) => {
-        const status = stockStatus(item);
-        const isNo = !item.replenish;
-        return '<div class="attention-row"><span class="attention-icon ' + (status === "low" || isNo ? "amber" : "") + '">' + icon(isNo ? "alert" : "box") + '</span><div class="attention-copy"><strong>' + esc(item.name) + '</strong><small>' + esc(item.sku) + (isNo ? " · Sin reposición" : " · Punto de pedido " + quantity(reorderPoint(item))) + '</small></div><div class="attention-stock">' + quantity(item.stock) + ' ' + esc(item.unit) + '<small>en stock</small></div></div>';
-      }).join("") : '<div class="empty-state"><strong>Todo en orden</strong>No hay materiales bajo el punto de reposición.</div>') +
-      '</div></section></div>' +
       '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Materiales para revisar <span class="pill-count">' + attention.length + '</span></h2><p class="panel-caption">Resumen de stock y estado de abastecimiento.</p></div><button class="text-link" data-view="items">Ver todos</button></div>' +
       renderItemTable(attention, false) + '</section>' +
       '<section class="panel table-panel" style="margin-top:15px"><div class="panel-head"><div><h2 class="panel-title">Movimientos recientes</h2><p class="panel-caption">Últimos cambios registrados en el inventario.</p></div><button class="text-link" data-view="movements">Ver historial</button></div>' +
