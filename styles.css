@@ -194,7 +194,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .reorder-header,.reorder-card{display:grid;grid-template-columns:minmax(300px,2fr) 88px minmax(120px,.8fr) minmax(140px,1fr) minmax(140px,1fr) minmax(135px,.9fr) 180px;align-items:center;gap:18px;padding-right:16px;padding-left:16px}
 .reorder-header>* , .reorder-card>*{min-width:0}
 .reorder-header>span:nth-child(2){text-align:center}
-.reorder-status>span{display:inline-flex;width:auto}
+.reorder-status>span{display:inline-flex;width:auto}.reorder-card .reorder-status{display:flex;align-items:center}
+.reorder-card .reorder-status .badge{display:inline-flex;width:max-content}
 .reorder-header{padding-top:12px;padding-bottom:12px;border-bottom:1px solid #e7ebf0;background:#fafbfd;color:#8995a5;font-size:9px;font-weight:700;letter-spacing:.04em}
 .reorder-card{padding-top:14px;padding-bottom:14px;border-bottom:1px solid #edf0f4}
 .reorder-card:last-child{border-bottom:0}
