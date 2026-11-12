@@ -331,6 +331,13 @@
     const items = activeItems();
     const value = items.reduce((sum, item) => sum + num(item.stock) * lastPurchaseCostUsd(item), 0);
     const noRestock = items.filter((item) => !item.replenish && num(item.stock) <= num(item.safetyStock));
+    const attention = items.filter((item) => (item.replenish && num(item.stock) <= reorderPoint(item)) || (!item.replenish && num(item.stock) <= num(item.safetyStock))).sort((a, b) => (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999)).slice(0, 5);
+    return '<div class="kpi-grid">' +
+      kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
+      kpi("VALOR DEL STOCK", moneyUSD(value), "Valuado al último precio pagado", "coin", "lime") +
+      kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
+      kpi("SUGERENCIAS DE REPOSICIÓN", candidates().length, "Según consumo y plazo de entrega", "bell", "") +
+      '</div>' +
       '<section class="panel table-panel"><div class="panel-head"><div><h2 class="panel-title">Materiales para revisar <span class="pill-count">' + attention.length + '</span></h2><p class="panel-caption">Resumen de stock y estado de abastecimiento.</p></div><button class="text-link" data-view="items">Ver todos</button></div>' +
       renderItemTable(attention, false) + '</section>' +
       '<section class="panel table-panel" style="margin-top:15px"><div class="panel-head"><div><h2 class="panel-title">Movimientos recientes</h2><p class="panel-caption">Últimos cambios registrados en el inventario.</p></div><button class="text-link" data-view="movements">Ver historial</button></div>' +
