@@ -191,7 +191,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .summary-card{padding:15px 16px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .summary-card span{display:block;color:#8290a2;font-size:10px}
 .summary-card strong{display:block;margin-top:8px;color:#243145;font:700 22px Manrope,sans-serif}
-.reorder-header,.reorder-card{display:grid;grid-template-columns:minmax(300px,2fr) 88px minmax(120px,.8fr) minmax(140px,1fr) minmax(140px,1fr) minmax(135px,.9fr) 180px;align-items:center;gap:18px;padding-right:16px;padding-left:16px}
+.reorder-header,.reorder-card{display:grid;grid-template-columns:minmax(260px,1.8fr) 64px minmax(100px,.65fr) minmax(130px,.85fr) minmax(130px,.85fr) minmax(100px,.65fr) minmax(185px,auto);align-items:center;gap:12px;padding-right:28px;padding-left:16px}
 .reorder-header>* , .reorder-card>*{min-width:0}
 .reorder-header>span:nth-child(2){text-align:center}
 .reorder-status>span{display:inline-flex;width:auto}.reorder-card .reorder-status{display:flex;align-items:center}
@@ -199,7 +199,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .reorder-header{padding-top:12px;padding-bottom:12px;border-bottom:1px solid #e7ebf0;background:#fafbfd;color:#8995a5;font-size:9px;font-weight:700;letter-spacing:.04em}
 .reorder-card{padding-top:14px;padding-bottom:14px;border-bottom:1px solid #edf0f4}
 .reorder-card:last-child{border-bottom:0}
-.reorder-abc-column{display:grid;align-self:stretch;place-items:center;min-width:88px}
+.reorder-abc-column{display:grid;align-self:stretch;place-items:center;min-width:64px}
+.reorder-action{justify-self:start}.reorder-action .button{white-space:nowrap}
 .reorder-name{color:#334155;font-size:11px;font-weight:700}
 .reorder-meta{margin-top:4px;color:#8d98a7;font-size:9px}
 .reorder-value span,.reorder-value small{display:block}
