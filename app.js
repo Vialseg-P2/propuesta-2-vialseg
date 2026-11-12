@@ -339,7 +339,6 @@
       return (a.replenish ? num(a.stock) - reorderPoint(a) : -999) - (b.replenish ? num(b.stock) - reorderPoint(b) : -999);
     }).slice(0, 5);
     return '<div class="kpi-grid">' +
-      kpi("INSUMOS ACTIVOS", items.length, '<span class="up">●</span> En el catálogo', "box", "blue") +
       kpi("VALOR DEL STOCK", moneyUSD(value), "Valuado al último precio pagado", "coin", "lime") +
       kpi("BAJO STOCK DE SEGURIDAD", criticalItems().length + noRestock.length, '<span class="down">Revisar disponibilidad</span>', "alert", "alert") +
       kpi("SUGERENCIAS DE REPOSICIÓN", candidates().length, "Según consumo y plazo de entrega", "bell", "") +
